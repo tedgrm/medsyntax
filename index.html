@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <title>pubMedSyntax</title>
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+</head>
+
+<body>
+  <textarea id="query-input" name="query-input" rows="10" cols="100" onkeyup="myFunction()"></textarea>
+  <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query.</p>
+  <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query.</p>
+  <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
+  <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
+
+  <div id="medsyntax">
+    <h3>::: medsyntax :::</h3>
+    <div id="medsyntax-target">Please input search query in text area.</div>
+  </div>
+
+  <p id="demo2">(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND
+    ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR
+    forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR
+    phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND ("Aftercare"[Mesh] OR offloading [tiab] OR
+    shoe*[tiab] OR half-shoe* [tiab] OR cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh] OR wound care
+    [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR
+    NTP [tiab] OR NPWT [tiab] OR VAC [tiab])</p>
+
+  <!-- Features:
+    - Haakjes herkennen.
+    - Blokhaken (tiab, mesh etc) herkennen.
+    - Quotes herkennen. (Momenteel enkel " characters.)
+    - Boolean operators herkennen. (Momenteel AND, OR en NOT.)
+    - Onjuist aantal haakjes herkennen. (Bijvoorbeeld niet afgesloten openende haakjes.)
+    - Onjuist aantal quotes herkennen.
+    - Combinatie van AND en OR operatoren op hetzelfde niveau herkennen. (Deze situatie moet vermeden worden door
+    haakjes te plaatsen: een search query zou maar voor 1 uitleg vatbaar moeten zijn om reproduceerbaarheid te garanderen.)
+    - Volledige search query wordt omgezet in HTML elementen zodat met CSS verdere visuele verduidelijking mogelijk is.
+   -->
+
+  <script>
+    $(document).ready(function () {
+      hideWarnings();
+    });
+
+    var sourceElementId = "query-input";
+    var targetElementId = "medsyntax-target";
+    var warningBracketCloseElementId = "warning-bracket-close";
+    var warningBracketOpenElementId = "warning-bracket-open";
+    var warningQuotesElementId = "warning-quotes";
+    var warningAmbiguousAndElementId = "warning-ambiguous-and";
+
+    function hideWarnings() {
+      document.getElementById(warningBracketCloseElementId).hidden = true;
+      document.getElementById(warningBracketOpenElementId).hidden = true;
+      document.getElementById(warningQuotesElementId).hidden = true;
+      document.getElementById(warningAmbiguousAndElementId).hidden = true;
+    }
+
+    var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
+
+    var termRe = new RegExp('\\/div\\>(.[A-Z]{1,}?)\\<div', 'gi'); //TODO
+
+    var andRe = new RegExp('( AND | and )', 'gi');
+    var orRe = new RegExp('( OR | or )', 'gi');
+    var notRe = new RegExp('( NOT | not )', 'gi');
+    var special = "___";
+
+    function booleanAndFunction(x) {
+      x = "<div class=\"boolean and\">" + x + "</div>";
+      return x;
+    }
+
+    function booleanOrFunction(x) {
+      x = "<div class=\"boolean or\">" + x + "</div>";
+      return x;
+    }
+
+    function booleanNotFunction(x) {
+      x = "<div class=\"boolean not\">" + x + "</div>";
+      return x;
+    }
+
+    function quotedTermToElement(x) {
+      x = x.replace(new RegExp(' ', 'gi'), special);
+      x = "<div class=\"quote term\">" + x + "</div>";
+      return x;
+    }
+
+    function termReFunction(x) {
+      // console.log(x);
+      x = x.replace("<div", "</div><div");
+      x = x.replace("/div>", "/div><div class=\"term\">");
+      // console.log(x);
+      return x;
+    }
+
+    function myFunction() {
+      hideWarnings();
+
+      var str = document.getElementById(sourceElementId).value;
+
+      quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
+      if (quotesCount % 2 != 0) {
+        document.getElementById(warningQuotesElementId).hidden = false;
+      }
+
+      str = str.replaceAll("“", "\""); // quote cleaner
+      str = str.replaceAll("”", "\""); // quote cleaner
+
+      str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
+      str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
+      str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
+      str = str.replace(notRe, function (x) { return booleanNotFunction(x); });
+
+      // brackets
+      str = str.replaceAll("(", "<div class=\"brackets\"><div class=\"bracket-open\">(</div>");
+      str = str.replaceAll(")", "<div class=\"bracket-close\">)</div></div>");
+
+      // square brackets
+      str = str.replaceAll("[", "<div class=\"square-brackets\">[");
+      str = str.replaceAll("]", "]</div>");
+
+      str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
+
+      // make stray words elements
+      str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
+      strOld = "";
+      while (str != strOld) {
+        strOld = str;
+        // console.log(strOld);
+        str = str.replace(termRe, function (x) { return termReFunction(x); }); //make stray words elements
+        // console.log(str);
+      }
+
+      //TODO regex toevoegen om laatste strays op te pakken: moet ook vreemde tekens oppakken
+      res = str;
+
+      // console.log(str); 
+
+      document.getElementById(targetElementId).innerHTML = res;
+
+      bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
+      bracketCloseCount = (str.match(new RegExp('(\\))', 'gi')) || []).length;
+      if (bracketOpenCount > bracketCloseCount) {
+        document.getElementById(warningBracketOpenElementId).hidden = false;
+      }
+      if (bracketOpenCount < bracketCloseCount) {
+        document.getElementById(warningBracketOpenElementId).hidden = false;
+      }
+
+      // ambiguous ANDs and ORs
+      var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
+      if (ambiguousAndLen > 0) {
+        $(".brackets .boolean.or").siblings(".and").css("background", "lightcoral"); // color AND
+        $(".search-string .boolean.or").siblings(".and").css("background", "lightcoral"); // color AND
+        $(".brackets .boolean.and").siblings(".or").css("background", "lightpink"); // color OR
+        $(".search-string .boolean.and").siblings(".or").css("background", "lightpink"); // color OR
+        document.getElementById(warningAmbiguousAndElementId).hidden = false;
+      }
+    }
+
+    //TODO undo geschiedenis voor search strings toevoegen?
+
+  </script>
+
+  <script>
+  </script>
+
+  <style>
+    body {
+      background-color: lightgrey;
+      font: icon;
+    }
+
+    #demo2 {
+      padding: 5px;
+      background-color: lightslategray;
+      font: message-box;
+      font-size: smaller;
+    }
+
+    #query-input {
+      padding: 5px;
+      font: message-box;
+    }
+
+    #medsyntax div {
+      color: black;
+      display: inline-block;
+      padding-bottom: 2px;
+    }
+
+    #medsyntax div.search-string {
+      background-color: white;
+      padding: 15px;
+      padding-top: 20px;
+      border-radius: 1px;
+      display: inline-block;
+      font: icon;
+    }
+
+    #medsyntax-target div.quote {
+      margin-left: 5px;
+      margin-right: 5px;
+      margin-bottom: 3px;
+      background: lightgray;
+    }
+
+    #medsyntax-target div.boolean {
+      color: darkblue;
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+
+    #medsyntax-target div.brackets {
+      padding: 3px;
+      border-width: 3px;
+      border-radius: 5px;
+      border-bottom: darkorange;
+      border-bottom-style: solid;
+      border-left: darkorange;
+      border-left-style: solid;
+      border-right: darkorange;
+      border-right-style: dashed;
+      margin-left: 3px;
+      margin-right: 3px;
+      margin-bottom: 3px;
+    }
+
+    #medsyntax-target div.square-brackets {
+      border-width: 2px;
+      border-color: lightgray;
+      border-style: dashed;
+    }
+
+    p.warning-medsyntax {
+      background-color: lightcoral;
+    }
+  </style>
+
+</body>
+
+</html>
