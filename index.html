@@ -146,8 +146,8 @@
       // ambiguous ANDs and ORs
       var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
       if (ambiguousAndLen > 0) {
-        $(".brackets .boolean.or").siblings(".and").css("background", "lightcoral"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("background", "lightcoral"); // color AND
+        $(".brackets .boolean.or").siblings(".and").css("background":"black", "maring":"10px", "color":"white"); // color AND
+        $(".search-string .boolean.or").siblings(".and").css("background":"black", "maring":"10px", "color":"white"); // color AND
         $(".brackets .boolean.and").siblings(".or").css("background", "lightpink"); // color OR
         $(".search-string .boolean.and").siblings(".or").css("background", "lightpink"); // color OR
         document.getElementById(warningAmbiguousAndElementId).hidden = false;
