@@ -18,6 +18,7 @@
     <div id="medsyntax-target">Please input search query in text area.</div>
   </div>
 
+  <button id="demo-button" onclick="clickFunction()">demo button (click to demo)</button>
   <p id="demo2">(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))</p>
 
   <!-- Features:
@@ -33,6 +34,10 @@
    -->
 
   <script>
+    function clickFunction() {
+      $("#query-input").val($("#demo2").text());
+      myFunction();
+    }
     $(document).ready(function () {
       hideWarnings();
     });
@@ -146,10 +151,14 @@
       // ambiguous ANDs and ORs
       var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
       if (ambiguousAndLen > 0) {
-        $(".brackets .boolean.or").siblings(".and").css("background", "lightcoral"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("background", "lightcoral"); // color AND
-        $(".brackets .boolean.and").siblings(".or").css("background", "lightpink"); // color OR
-        $(".search-string .boolean.and").siblings(".or").css("background", "lightpink"); // color OR
+        $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
+        $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
+        $(".search-string .boolean.or").siblings(".and").css("background","black"); // color AND
+        $(".search-string .boolean.or").siblings(".and").css("color","white"); // color AND
+        $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
+        $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
+        $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
+        $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
         document.getElementById(warningAmbiguousAndElementId).hidden = false;
       }
     }
@@ -205,6 +214,7 @@
       color: darkblue;
       margin-left: 5px;
       margin-right: 5px;
+      font-weight: bold;
     }
 
     #medsyntax-target div.brackets {
@@ -216,7 +226,9 @@
       border-left: darkorange;
       border-left-style: solid;
       border-right: darkorange;
-      border-right-style: dashed;
+      border-right-style: solid;
+      border-top: darkorange;
+      border-top-style: solid;
       margin-left: 3px;
       margin-right: 3px;
       margin-bottom: 3px;
