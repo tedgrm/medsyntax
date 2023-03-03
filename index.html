@@ -2,24 +2,42 @@
 
 <head>
   <meta charset="utf-8">
-  <title>pubMedSyntax</title>
+  <title>medsyntax</title>
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
 
 <body>
-  <textarea id="query-input" class="query-input" name="query-input" rows="10" cols="100" onkeyup="myFunction()"></textarea>
+  <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
+    onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
+  <!-- <textarea id="query-input2" class="query-input" name="query-input" rows="10" cols="100"
+    onkeyup='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
+  <textarea id="query-input3" class="query-input" name="query-input" rows="10" cols="100"
+    onkeyup='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
+  <textarea id="query-input4" class="query-input" name="query-input" rows="10" cols="100"
+    onkeyup='syntaxCheck("query-input4","medsyntax-target4")'></textarea> -->
+
   <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query.</p>
   <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query.</p>
+  <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query.</p>
+  <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query.</p>
   <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
   <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
 
   <div id="medsyntax">
-    <h3>::: medsyntax :::</h3>
-    <div id="medsyntax-target">Please input search query in text area.</div>
+    <h3>+ medsyntax search query visualisation +</h3>
+    <!-- <h3>P</h3> -->
+    <div id="medsyntax-target1" class="medsyntax-target">Please input search query in text area.</div>
+    <!-- <h3>I</h3>
+    <div id="medsyntax-target2" class="medsyntax-target">Please input search query in text area.</div>
+    <h3>C</h3>
+    <div id="medsyntax-target3" class="medsyntax-target">Please input search query in text area.</div>
+    <h3>O</h3>
+    <div id="medsyntax-target4" class="medsyntax-target">Please input search query in text area.</div> -->
   </div>
 
-  <button id="demo-button" onclick="clickFunction()">demo button (click to demo)</button>
-  <p id="demo2" hidden="hidden">(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))</p>
+  <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
+  <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
+
 
   <!-- Features:
     - Haakjes herkennen.
@@ -34,24 +52,36 @@
    -->
 
   <script>
-    function clickFunction() {
-      $("#query-input").val($("#demo2").text());
-      myFunction();
+    function demoClickFunction() {
+      $("#query-input1").val($("#demo2").text());
+      $("#query-input2").val($("#demo2").text());
+      $("#query-input3").val($("#demo2").text());
+      $("#query-input4").val($("#demo2").text());
+
+      syntaxCheck("query-input1", "medsyntax-target1");
+      syntaxCheck("query-input2", "medsyntax-target2");
+      syntaxCheck("query-input3", "medsyntax-target3");
+      syntaxCheck("query-input4", "medsyntax-target4");
     }
     $(document).ready(function () {
       hideWarnings();
+      document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
     });
 
-    var sourceElementId = "query-input";
-    var targetElementId = "medsyntax-target";
+    // var sourceElementId = "query-input";
+    // var targetElementId = "medsyntax-target";
     var warningBracketCloseElementId = "warning-bracket-close";
     var warningBracketOpenElementId = "warning-bracket-open";
+    var warningSquareBracketCloseElementId = "warning-square-bracket-close";
+    var warningSquareBracketOpenElementId = "warning-square-bracket-open";
     var warningQuotesElementId = "warning-quotes";
     var warningAmbiguousAndElementId = "warning-ambiguous-and";
 
     function hideWarnings() {
       document.getElementById(warningBracketCloseElementId).hidden = true;
       document.getElementById(warningBracketOpenElementId).hidden = true;
+      document.getElementById(warningSquareBracketCloseElementId).hidden = true;
+      document.getElementById(warningSquareBracketOpenElementId).hidden = true;
       document.getElementById(warningQuotesElementId).hidden = true;
       document.getElementById(warningAmbiguousAndElementId).hidden = true;
     }
@@ -94,9 +124,11 @@
       return x;
     }
 
-    function myFunction() {
+    function syntaxCheck(sourceElementId, targetElementId) {
       hideWarnings();
 
+      console.log(sourceElementId);
+      console.log(targetElementId);
       var str = document.getElementById(sourceElementId).value;
 
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
@@ -139,13 +171,24 @@
 
       document.getElementById(targetElementId).innerHTML = res;
 
+      // bracket warnings ( and )
       bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
       bracketCloseCount = (str.match(new RegExp('(\\))', 'gi')) || []).length;
       if (bracketOpenCount > bracketCloseCount) {
         document.getElementById(warningBracketOpenElementId).hidden = false;
       }
       if (bracketOpenCount < bracketCloseCount) {
-        document.getElementById(warningBracketOpenElementId).hidden = false;
+        document.getElementById(warningBracketCloseElementId).hidden = false;
+      }
+
+      // bracket warnings [ and ]
+      squareBracketOpenCount = (str.match(new RegExp('(\\[)', 'gi')) || []).length;
+      squareBracketCloseCount = (str.match(new RegExp('(\\])', 'gi')) || []).length;
+      if (squareBracketOpenCount > squareBracketCloseCount) {
+        document.getElementById(warningSquareBracketOpenElementId).hidden = false;
+      }
+      if (squareBracketOpenCount < squareBracketCloseCount) {
+        document.getElementById(warningSquareBracketCloseElementId).hidden = false;
       }
 
       // ambiguous ANDs and ORs
@@ -153,8 +196,8 @@
       if (ambiguousAndLen > 0) {
         $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
         $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("background","black"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("color","white"); // color AND
+        $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
+        $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
         $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
         $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
         $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
@@ -203,21 +246,33 @@
       font: icon;
     }
 
-    #medsyntax-target div.quote {
+    #medsyntax-target div.quote,
+    #medsyntax-target1 div.quote,
+    #medsyntax-target2 div.quote,
+    #medsyntax-target3 div.quote,
+    #medsyntax-target4 div.quote {
       margin-left: 5px;
       margin-right: 5px;
       margin-bottom: 3px;
       background: lightgray;
     }
 
-    #medsyntax-target div.boolean {
+    #medsyntax-target div.boolean,
+    #medsyntax-target1 div.boolean,
+    #medsyntax-target2 div.boolean,
+    #medsyntax-target3 div.boolean,
+    #medsyntax-target4 div.boolean {
       color: darkblue;
       margin-left: 5px;
       margin-right: 5px;
       font-weight: bold;
     }
 
-    #medsyntax-target div.brackets {
+    #medsyntax-target div.brackets,
+    #medsyntax-target1 div.brackets,
+    #medsyntax-target2 div.brackets,
+    #medsyntax-target3 div.brackets,
+    #medsyntax-target4 div.brackets {
       padding: 3px;
       border-width: 3px;
       border-radius: 5px;
@@ -235,14 +290,28 @@
       filter: hue-rotate(110deg);
     }
 
-    #medsyntax-target div.square-brackets {
-      border-width: 2px;
-      border-color: lightgray;
-      border-style: dashed;
+    #medsyntax-target div.square-brackets,
+    #medsyntax-target1 div.square-brackets,
+    #medsyntax-target2 div.square-brackets,
+    #medsyntax-target3 div.square-brackets,
+    #medsyntax-target4 div.square-brackets {
+      font-size: small;
+      background-color: lightgray;
+      padding: 5px;
+      border-radius: 1px;
     }
 
     p.warning-medsyntax {
       background-color: lightcoral;
+    }
+
+    h3 {
+      color: cornsilk;
+      background-color: darkcyan;
+      padding: 5px;
+      border-width: 5px;
+      border-radius: 5px;
+      border-color: darkcyan;
     }
   </style>
 
