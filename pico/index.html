@@ -8,16 +8,16 @@
 
 <body>
   <h3>P</h3>
-  <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
+  <textarea id="query-input1" class="query-input" name="query-input" rows="4" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
   <h3>I</h3>
-  <textarea id="query-input2" class="query-input" name="query-input" rows="10" cols="100"
+  <textarea id="query-input2" class="query-input" name="query-input" rows="4" cols="100"
     onkeyup='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
   <h3>C</h3>
-  <textarea id="query-input3" class="query-input" name="query-input" rows="10" cols="100"
+  <textarea id="query-input3" class="query-input" name="query-input" rows="4" cols="100"
     onkeyup='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
   <h3>O</h3>
-  <textarea id="query-input4" class="query-input" name="query-input" rows="10" cols="100"
+  <textarea id="query-input4" class="query-input" name="query-input" rows="4" cols="100"
     onkeyup='syntaxCheck("query-input4","medsyntax-target4")'></textarea>
 
   <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query.</p>
@@ -28,18 +28,22 @@
   <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
 
   <div id="medsyntax">
-    <h3>+ medsyntax search query visualisation +</h3>
-    <div id="medsyntax-target1" class="medsyntax-target">Please input search query in text area.</div>
-    <p>AND</p>
-    <div id="medsyntax-target2" class="medsyntax-target">Please input search query in text area.</div>
-    <p>AND</p>
-    <div id="medsyntax-target3" class="medsyntax-target">Please input search query in text area.</div>
-    <p>AND</p>
-    <div id="medsyntax-target4" class="medsyntax-target">Please input search query in text area.</div>
+    <h3>medsyntax:</h3>
+
+    <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
+    <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
+    <p id="full-string">full query will be output here</p>
+
+    <div id="medsyntax-target1" class="medsyntax-target" hidden>Please input search query in text area.</div>
+    <p id="and-1" hidden>AND</p>
+    <div id="medsyntax-target2" class="medsyntax-target" hidden>Please input search query in text area.</div>
+    <p id="and-2" hidden>AND</p>
+    <div id="medsyntax-target3" class="medsyntax-target" hidden>Please input search query in text area.</div>
+    <p id="and-3" hidden>AND</p>
+    <div id="medsyntax-target4" class="medsyntax-target" hidden=>Please input search query in text area.</div>
   </div>
 
-  <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
-  <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
+
 
 
   <!-- Features:
@@ -207,9 +211,75 @@
         $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
         document.getElementById(warningAmbiguousAndElementId).hidden = false;
       }
+
+
+      //TODO move to dedicated function and refactor
+      try {
+        document.getElementById("and-1").hidden = false;
+        document.getElementById("and-2").hidden = false;
+        document.getElementById("and-3").hidden = false;
+        fullString = ""
+
+        if (document.getElementById("query-input1").value.length > 0) {
+          document.getElementById("and-1").hidden = false;
+          document.getElementById("medsyntax-target1").hidden = false;
+
+          if (document.getElementById("query-input2").value.length > 0 || document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0) {
+            fullString = "(" + document.getElementById("query-input1").value + ") AND ";
+          } else {
+            fullString = "(" + document.getElementById("query-input1").value + ")";
+          }
+        } else {
+          document.getElementById("and-1").hidden = true;
+          document.getElementById("medsyntax-target1").hidden = true;
+        }
+        if (document.getElementById("query-input2").value.length > 0) {
+          document.getElementById("and-2").hidden = false;
+          document.getElementById("medsyntax-target2").hidden = false;
+
+          if (document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0) {
+            fullString = fullString + "(" + document.getElementById("query-input2").value + ") AND ";
+          } else {
+            fullString = fullString + "(" + document.getElementById("query-input2").value + ")";
+            console.log(document.getElementById("test"));
+          }
+        } else {
+          document.getElementById("and-2").hidden = true;
+          document.getElementById("medsyntax-target2").hidden = true;
+        }
+
+        if (document.getElementById("query-input3").value.length > 0) {
+          document.getElementById("medsyntax-target3").hidden = false;
+        } else {
+          document.getElementById("medsyntax-target3").hidden = true;
+        }
+        if (document.getElementById("query-input4").value.length > 0) {
+          document.getElementById("medsyntax-target4").hidden = false;
+        } else {
+          document.getElementById("medsyntax-target4").hidden = true;
+        }
+
+        if (document.getElementById("query-input3").value.length > 0 && document.getElementById("query-input4").value.length > 0) {
+          document.getElementById("and-3").hidden = false;
+
+          fullString = fullString + "(" + document.getElementById("query-input3").value + ") AND (" + document.getElementById("query-input4").value + ")";
+        } else {
+          document.getElementById("and-3").hidden = true;
+
+          if (document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0) {
+            fullString = fullString + "(" + document.getElementById("query-input3").value + document.getElementById("query-input4").value + ")";
+          }
+        }
+
+        console.log(fullString);
+        document.getElementById("full-string").innerText = fullString;
+      }
+      catch (err) {
+        console.log("error message")
+      }
+
     }
 
-    //TODO undo geschiedenis voor search strings toevoegen?
 
   </script>
 
@@ -217,6 +287,10 @@
   </script>
 
   <style>
+    [hidden] {
+      display: none !important;
+    }
+
     body {
       background-color: lightgrey;
       font: icon;
@@ -226,7 +300,7 @@
       padding: 5px;
       background-color: lightslategray;
       font: message-box;
-      font-size: smaller;
+      /* font-size: smaller; */
     }
 
     query-input {
@@ -244,7 +318,7 @@
       background-color: white;
       padding: 15px;
       padding-top: 20px;
-      border-radius: 1px;
+      border-radius: 5px;
       display: inline-block;
       font: icon;
     }
@@ -298,10 +372,11 @@
     #medsyntax-target2 div.square-brackets,
     #medsyntax-target3 div.square-brackets,
     #medsyntax-target4 div.square-brackets {
-      font-size: small;
-      background-color: lightgray;
-      padding: 5px;
-      border-radius: 1px;
+      /* font-size: small; */
+      /* background-color: lightgray; */
+      color: rgb(111, 111, 111);
+      /* padding: 5px; */
+      /* border-radius: 1px; */
     }
 
     p.warning-medsyntax {
@@ -309,12 +384,12 @@
     }
 
     h3 {
-      color: cornsilk;
-      background-color: darkcyan;
+      color: black;
+      background-color: lightgrey;
       padding: 5px;
       border-width: 5px;
       border-radius: 5px;
-      border-color: darkcyan;
+      border-color: darkgray;
     }
 
     p {
