@@ -8,22 +8,22 @@
 
 <body>
   <h3>P</h3>
-  <textarea id="query-input1" class="query-input" name="query-input" rows="4" cols="100"
+  <textarea id="query-input1" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
   <h3>I</h3>
-  <textarea id="query-input2" class="query-input" name="query-input" rows="4" cols="100"
+  <textarea id="query-input2" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
   <h3>C</h3>
-  <textarea id="query-input3" class="query-input" name="query-input" rows="4" cols="100"
+  <textarea id="query-input3" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
   <h3>O</h3>
-  <textarea id="query-input4" class="query-input" name="query-input" rows="4" cols="100"
+  <textarea id="query-input4" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input4","medsyntax-target4")'></textarea>
 
-  <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query.</p>
-  <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query.</p>
-  <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query.</p>
-  <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query.</p>
+  <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query. Or not enough ) in query.</p>
+  <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query. Or not enough ( in query.</p>
+  <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query. Or not enough ] in query.</p>
+  <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query. Or not enough [] in query.</p>
   <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
   <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
 
@@ -32,7 +32,6 @@
 
     <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
     <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
-    <p id="full-string">full query will be output here</p>
 
     <div id="medsyntax-target1" class="medsyntax-target" hidden>Please input search query in text area.</div>
     <p id="and-1" hidden>AND</p>
@@ -41,10 +40,9 @@
     <div id="medsyntax-target3" class="medsyntax-target" hidden>Please input search query in text area.</div>
     <p id="and-3" hidden>AND</p>
     <div id="medsyntax-target4" class="medsyntax-target" hidden=>Please input search query in text area.</div>
+
+    <p id="full-string">full query will be output here</p>
   </div>
-
-
-
 
   <!-- Features:
     - Haakjes herkennen.
@@ -70,9 +68,11 @@
       syntaxCheck("query-input3", "medsyntax-target3");
       syntaxCheck("query-input4", "medsyntax-target4");
     }
+
     $(document).ready(function () {
       hideWarnings();
       document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
+      // document.getElementById("demo2").innerText = '("just a demo" OR test) AND visual';
     });
 
     // var sourceElementId = "query-input";
@@ -132,7 +132,10 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      document.getElementById("demo-button").hidden = true; // move somewhere else
+
       hideWarnings();
+      var hasError = false;
 
       console.log(sourceElementId);
       console.log(targetElementId);
@@ -141,6 +144,7 @@
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
         document.getElementById(warningQuotesElementId).hidden = false;
+        hasError = true;
       }
 
       str = str.replaceAll("“", "\""); // quote cleaner
@@ -183,9 +187,11 @@
       bracketCloseCount = (str.match(new RegExp('(\\))', 'gi')) || []).length;
       if (bracketOpenCount > bracketCloseCount) {
         document.getElementById(warningBracketOpenElementId).hidden = false;
+        hasError = true;
       }
       if (bracketOpenCount < bracketCloseCount) {
         document.getElementById(warningBracketCloseElementId).hidden = false;
+        hasError = true;
       }
 
       // bracket warnings [ and ]
@@ -193,61 +199,73 @@
       squareBracketCloseCount = (str.match(new RegExp('(\\])', 'gi')) || []).length;
       if (squareBracketOpenCount > squareBracketCloseCount) {
         document.getElementById(warningSquareBracketOpenElementId).hidden = false;
+        hasError = true;
       }
       if (squareBracketOpenCount < squareBracketCloseCount) {
         document.getElementById(warningSquareBracketCloseElementId).hidden = false;
+        hasError = true;
       }
 
-      // ambiguous ANDs and ORs
-      var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
-      if (ambiguousAndLen > 0) {
-        $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
-        $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
-        $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
-        $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
-        $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
-        $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
-        document.getElementById(warningAmbiguousAndElementId).hidden = false;
+      if (hasError == false) {
+        // ambiguous ANDs and ORs
+        var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
+        if (ambiguousAndLen > 0) {
+          $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
+          $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
+          $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
+          $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
+          $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
+          $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
+          $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
+          $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
+          document.getElementById(warningAmbiguousAndElementId).hidden = false;
+          hasError = true;
+        }
       }
-
 
       //TODO move to dedicated function and refactor
       try {
-        document.getElementById("and-1").hidden = false;
-        document.getElementById("and-2").hidden = false;
-        document.getElementById("and-3").hidden = false;
+        document.getElementById("and-1").hidden = true;
+        document.getElementById("and-2").hidden = true;
+        document.getElementById("and-3").hidden = true;
         fullString = ""
 
+        // 1
         if (document.getElementById("query-input1").value.length > 0) {
-          document.getElementById("and-1").hidden = false;
           document.getElementById("medsyntax-target1").hidden = false;
-
-          if (document.getElementById("query-input2").value.length > 0 || document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0) {
-            fullString = "(" + document.getElementById("query-input1").value + ") AND ";
-          } else {
-            fullString = "(" + document.getElementById("query-input1").value + ")";
-          }
         } else {
-          document.getElementById("and-1").hidden = true;
           document.getElementById("medsyntax-target1").hidden = true;
         }
-        if (document.getElementById("query-input2").value.length > 0) {
-          document.getElementById("and-2").hidden = false;
-          document.getElementById("medsyntax-target2").hidden = false;
 
-          if (document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0) {
-            fullString = fullString + "(" + document.getElementById("query-input2").value + ") AND ";
-          } else {
-            fullString = fullString + "(" + document.getElementById("query-input2").value + ")";
-            console.log(document.getElementById("test"));
-          }
+        if (document.getElementById("query-input1").value.length > 0 &&
+          (document.getElementById("query-input2").value.length > 0 || document.getElementById("query-input3").value.length > 0 ||
+            document.getElementById("query-input4").value.length > 0)) {
+          // console.log("and-1");
+          document.getElementById("and-1").hidden = false;
+          fullString = "(" + document.getElementById("query-input1").value + ") AND ";
+        } else if (document.getElementById("query-input1").value.length > 0) {
+          fullString = "(" + document.getElementById("query-input1").value + ")";
+          document.getElementById("and-1").hidden = true;
+        }
+
+        // 2
+        if (document.getElementById("query-input2").value.length > 0) {
+          document.getElementById("medsyntax-target2").hidden = false;
         } else {
-          document.getElementById("and-2").hidden = true;
           document.getElementById("medsyntax-target2").hidden = true;
         }
 
+        if (document.getElementById("query-input2").value.length > 0 &&
+          (document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0)) {
+          document.getElementById("and-2").hidden = false;
+          fullString = fullString + "(" + document.getElementById("query-input2").value + ") AND ";
+        } else if (document.getElementById("query-input2").value.length > 0) {
+          document.getElementById("and-2").hidden = true;
+          fullString = fullString + "(" + document.getElementById("query-input2").value + ")";
+          // console.log(document.getElementById("test"));
+        }
+
+        // 3
         if (document.getElementById("query-input3").value.length > 0) {
           document.getElementById("medsyntax-target3").hidden = false;
         } else {
@@ -261,13 +279,36 @@
 
         if (document.getElementById("query-input3").value.length > 0 && document.getElementById("query-input4").value.length > 0) {
           document.getElementById("and-3").hidden = false;
-
           fullString = fullString + "(" + document.getElementById("query-input3").value + ") AND (" + document.getElementById("query-input4").value + ")";
         } else {
           document.getElementById("and-3").hidden = true;
-
           if (document.getElementById("query-input3").value.length > 0 || document.getElementById("query-input4").value.length > 0) {
             fullString = fullString + "(" + document.getElementById("query-input3").value + document.getElementById("query-input4").value + ")";
+          }
+        }
+
+        if (hasError == true) {
+          for (let i = 1; i < 5; i++) {
+            var el = "query-input" + i;
+            if (sourceElementId != el) {
+              document.getElementById(el).disabled = true;
+            }
+
+            var tar = "medsyntax-target" + i;
+            if (targetElementId != tar) {
+              document.getElementById(tar).hidden = true;
+            }
+
+            document.getElementById("and-1").hidden = true;
+            document.getElementById("and-2").hidden = true;
+            document.getElementById("and-3").hidden = true;
+          }
+        } else {
+          for (let i = 1; i < 5; i++) {
+            var el = "query-input" + i;
+            if (sourceElementId != el) {
+              document.getElementById(el).disabled = false;
+            }
           }
         }
 
@@ -300,12 +341,84 @@
       padding: 5px;
       background-color: lightslategray;
       font: message-box;
-      /* font-size: smaller; */
     }
 
-    query-input {
+    #demo-button {
+      display: inline-block;
+    }
+
+    #full-string {
+      background-color: antiquewhite;
+      /* border-radius: 2px; */
+    }
+
+    .query-input {
       padding: 5px;
       font: message-box;
+      border-style: solid;
+      border-radius: 6px;
+    }
+
+    .medsyntax-target {
+      border-style: solid;
+      border-radius: 6px;
+      border-width: 3px;
+    }
+
+    #query-input1 {
+      border-color: #4B2582;
+      border-width: 3px;
+    }
+
+    #query-input1:focus {
+      border-color: #4B2582;
+      border-width: 4px;
+    }
+
+    #query-input2 {
+      border-color: #017BC0;
+      border-width: 3px;
+    }
+
+    #query-input2:focus {
+      border-color: #017BC0;
+      border-width: 4px;
+    }
+
+    #query-input3 {
+      border-color: #dfc100;
+      border-width: 3px;
+    }
+
+    #query-input3:focus {
+      border-color: #dfc100;
+      border-width: 4px;
+    }
+
+    #query-input4 {
+      border-color: #aad900;
+      border-width: 3px;
+    }
+
+    #query-input4:focus {
+      border-color: #aad900;
+      border-width: 4px;
+    }
+
+    #medsyntax-target1 {
+      border-color: #4B2582;
+    }
+
+    #medsyntax-target2 {
+      border-color: #017BC0;
+    }
+
+    #medsyntax-target3 {
+      border-color: #dfc100;
+    }
+
+    #medsyntax-target4 {
+      border-color: #aad900;
     }
 
     #medsyntax div {
@@ -372,11 +485,7 @@
     #medsyntax-target2 div.square-brackets,
     #medsyntax-target3 div.square-brackets,
     #medsyntax-target4 div.square-brackets {
-      /* font-size: small; */
-      /* background-color: lightgray; */
       color: rgb(111, 111, 111);
-      /* padding: 5px; */
-      /* border-radius: 1px; */
     }
 
     p.warning-medsyntax {
@@ -386,7 +495,7 @@
     h3 {
       color: black;
       background-color: lightgrey;
-      padding: 5px;
+      padding: 3px;
       border-width: 5px;
       border-radius: 5px;
       border-color: darkgray;
