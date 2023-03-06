@@ -10,10 +10,10 @@
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
 
-  <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query.</p>
-  <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query.</p>
-  <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query.</p>
-  <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query.</p>
+  <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query. Or not enough ) in query.</p>
+  <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query. Or not enough ( in query.</p>
+  <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query. Or not enough ] in query.</p>
+  <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query. Or not enough [] in query.</p>
   <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
   <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
 
@@ -109,7 +109,10 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      document.getElementById("demo-button").hidden = true; // move somewhere else
+
       hideWarnings();
+      var hasError = false;
 
       console.log(sourceElementId);
       console.log(targetElementId);
@@ -118,6 +121,7 @@
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
         document.getElementById(warningQuotesElementId).hidden = false;
+        hasError = true;
       }
 
       str = str.replaceAll("“", "\""); // quote cleaner
@@ -160,9 +164,11 @@
       bracketCloseCount = (str.match(new RegExp('(\\))', 'gi')) || []).length;
       if (bracketOpenCount > bracketCloseCount) {
         document.getElementById(warningBracketOpenElementId).hidden = false;
+        hasError = true;
       }
       if (bracketOpenCount < bracketCloseCount) {
         document.getElementById(warningBracketCloseElementId).hidden = false;
+        hasError = true;
       }
 
       // bracket warnings [ and ]
@@ -170,23 +176,28 @@
       squareBracketCloseCount = (str.match(new RegExp('(\\])', 'gi')) || []).length;
       if (squareBracketOpenCount > squareBracketCloseCount) {
         document.getElementById(warningSquareBracketOpenElementId).hidden = false;
+        hasError = true;
       }
       if (squareBracketOpenCount < squareBracketCloseCount) {
         document.getElementById(warningSquareBracketCloseElementId).hidden = false;
+        hasError = true;
       }
 
-      // ambiguous ANDs and ORs
-      var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
-      if (ambiguousAndLen > 0) {
-        $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
-        $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
-        $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
-        $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
-        $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
-        $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
-        $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
-        document.getElementById(warningAmbiguousAndElementId).hidden = false;
+      if (hasError == false) {
+        // ambiguous ANDs and ORs
+        var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
+        if (ambiguousAndLen > 0) {
+          $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
+          $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
+          $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
+          $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
+          $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
+          $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
+          $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
+          $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
+          document.getElementById(warningAmbiguousAndElementId).hidden = false;
+          hasError = true;
+        }
       }
 
     }
