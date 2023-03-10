@@ -42,15 +42,42 @@
    -->
 
   <script>
-    function demoClickFunction() {
-      $("#query-input1").val($("#demo2").text());
-
-      syntaxCheck("query-input1", "medsyntax-target1");
-    }
     $(document).ready(function () {
       hideWarnings();
+
+      if (location.search.length > 1) {
+        $("#query-input1").val(decodeURIComponent(location.search.substring(7)));
+        syntaxCheck("query-input1", "medsyntax-target1");
+      }
+
       document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
     });
+
+    function updateUrl(urlParameter) {
+      var url = window.location.origin;
+      if (url.indexOf('?') > -1) {
+        url += ('&query=' + urlParameter)
+      } else {
+        url += ('?query=' + urlParameter)
+      }
+
+      // Current URL: https://my-website.com/page_a
+      const nextURL = url;
+      const nextTitle = 'My new page title';
+      const nextState = { additionalInformation: 'Updated the URL with JS' };
+
+      // This will create a new entry in the browser's history, without reloading
+      window.history.pushState(nextState, nextTitle, nextURL);
+
+      // This will replace the current entry in the browser's history, without reloading
+      window.history.replaceState(nextState, nextTitle, nextURL);
+    }
+
+    function demoClickFunction() {
+      $("#query-input1").val($("#demo2").text());
+      syntaxCheck("query-input1", "medsyntax-target1");
+    }
+
 
     // var sourceElementId = "query-input";
     // var targetElementId = "medsyntax-target";
@@ -109,14 +136,16 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      var str = document.getElementById(sourceElementId).value;
+      updateUrl(encodeURIComponent(str));
+
       document.getElementById("demo-button").hidden = true; // move somewhere else
 
       hideWarnings();
       var hasError = false;
 
-      console.log(sourceElementId);
-      console.log(targetElementId);
-      var str = document.getElementById(sourceElementId).value;
+      // console.log(sourceElementId);
+      // console.log(targetElementId);
 
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
@@ -158,6 +187,8 @@
       // console.log(str); 
 
       document.getElementById(targetElementId).innerHTML = res;
+
+      // WARNINGS
 
       // bracket warnings ( and )
       bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
