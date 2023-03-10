@@ -54,7 +54,7 @@
     });
 
     function updateUrl(urlParameter) {
-      var url = window.location.origin;
+      var url = window.location.href.split('?')[0];
       if (url.indexOf('?') > -1) {
         url += ('&query=' + urlParameter)
       } else {
