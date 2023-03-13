@@ -97,6 +97,12 @@
       document.getElementById(warningAmbiguousAndElementId).hidden = true;
     }
 
+
+
+
+
+
+
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
 
     var termRe = new RegExp('\\/div\\>(.[A-Z]{1,}?)\\<div', 'gi'); //TODO
@@ -104,7 +110,19 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
+    var embaseRe = new RegExp('(([\\\\/][A-Za-z])\\\w+|([\\\\:][A-Za-z])\\\w+)', 'gi');
+    var embasePhrase = ":";
+    var embaseExact = "/";
+    var specialEmbaseExact = "f5k9n3j4k-d1k5g4n4v"
+    var specialEmbasePhrase = "b5k9n8j4m-j1k5g4n4x"
     var special = "___";
+
+    function embaseFunction(x) {
+      console.log(x);
+      x = "<div class=embase>" + x + "</div>";
+      console.log(x);
+      return x;
+    }
 
     function booleanAndFunction(x) {
       x = "<div class=\"boolean and\">" + x + "</div>";
@@ -122,6 +140,9 @@
     }
 
     function quotedTermToElement(x) {
+      // x = x.replace(new RegExp(embaseExact, 'gi'), specialEmbaseExact);
+      // x = x.replace(new RegExp(embasePhrase, 'gi'), specialEmbasePhrase);
+
       x = x.replace(new RegExp(' ', 'gi'), special);
       x = "<div class=\"quote term\">" + x + "</div>";
       return x;
@@ -154,10 +175,13 @@
         hasError = true;
       }
 
-      str = str.replaceAll("“", "\""); // quote cleaner
-      str = str.replaceAll("”", "\""); // quote cleaner
+      // str = str.replaceAll("“", "\""); // quote cleaner
+      // str = str.replaceAll("”", "\""); // quote cleaner
 
+      str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
       str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
+      // str = str.replace(new RegExp(specialEmbaseExact, 'gi'), embaseExact); //un-special-fy embase
+      // str = str.replace(new RegExp(specialEmbasePhrase, 'gi'), embasePhrase); //un-special-fy embase
       str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
       str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
       str = str.replace(notRe, function (x) { return booleanNotFunction(x); });
@@ -171,6 +195,7 @@
       str = str.replaceAll("]", "]</div>");
 
       str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
+      str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
 
       // make stray words elements
       str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
@@ -323,6 +348,18 @@
     #medsyntax-target2 div.square-brackets,
     #medsyntax-target3 div.square-brackets,
     #medsyntax-target4 div.square-brackets {
+      /* font-size: small; */
+      /* background-color: lightgray; */
+      color: rgb(111, 111, 111);
+      /* padding: 5px; */
+      /* border-radius: 1px; */
+    }
+
+    #medsyntax-target div.embase,
+    #medsyntax-target1 div.embase,
+    #medsyntax-target2 div.embase,
+    #medsyntax-target3 div.embase,
+    #medsyntax-target4 div.embase {
       /* font-size: small; */
       /* background-color: lightgray; */
       color: rgb(111, 111, 111);
