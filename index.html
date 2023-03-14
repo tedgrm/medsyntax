@@ -50,7 +50,7 @@
         syntaxCheck("query-input1", "medsyntax-target1");
       }
 
-      document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
+      document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx OR amputation OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab])) "demo something"/bv AND nearDemo1 NEAR/2 nearDemo2 AND demoTiab[tiab] AND ("moreDemo something" OR demoMore) AND "hip pain"[Title/Abstract:~2] AND endDemo';
     });
 
     function updateUrl(urlParameter) {
@@ -61,7 +61,6 @@
         url += ('?query=' + urlParameter)
       }
 
-      // Current URL: https://my-website.com/page_a
       const nextURL = url;
       const nextTitle = 'My new page title';
       const nextState = { additionalInformation: 'Updated the URL with JS' };
@@ -78,9 +77,6 @@
       syntaxCheck("query-input1", "medsyntax-target1");
     }
 
-
-    // var sourceElementId = "query-input";
-    // var targetElementId = "medsyntax-target";
     var warningBracketCloseElementId = "warning-bracket-close";
     var warningBracketOpenElementId = "warning-bracket-open";
     var warningSquareBracketCloseElementId = "warning-square-bracket-close";
@@ -101,25 +97,32 @@
 
 
 
-
+    //*** Syntax highlighter code ***//
 
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
-
     var termRe = new RegExp('\\/div\\>(.[A-Z]{1,}?)\\<div', 'gi'); //TODO
 
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
-    var embaseRe = new RegExp('(([\\\\/][A-Za-z])\\\w+|([\\\\:][A-Za-z])\\\w+)', 'gi');
+    var embaseRe = new RegExp('(([\\\\/][A-Za-z])\\\w+|([\\\\:][A-Za-z])\\\w+|(\\w+[A-Za-z][\\\\/][0-9]+))', 'gi');
+    var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
     var embaseExact = "/";
-    var specialEmbaseExact = "f5k9n3j4k-d1k5g4n4v"
-    var specialEmbasePhrase = "b5k9n8j4m-j1k5g4n4x"
+    var specialColon = "g4h4j4m4j1k5g6h6g";
+    var specialSlash = "n7k8n8j4m4j1k5g4n";
     var special = "___";
 
     function embaseFunction(x) {
       console.log(x);
       x = "<div class=embase>" + x + "</div>";
+      console.log(x);
+      return x;
+    }
+
+    function pubmedFunction(x) {
+      console.log(x);
+      x = "<div class=pubmed>" + x + "</div>";
       console.log(x);
       return x;
     }
@@ -140,16 +143,14 @@
     }
 
     function quotedTermToElement(x) {
-      // x = x.replace(new RegExp(embaseExact, 'gi'), specialEmbaseExact);
-      // x = x.replace(new RegExp(embasePhrase, 'gi'), specialEmbasePhrase);
-
       x = x.replace(new RegExp(' ', 'gi'), special);
-      x = "<div class=\"quote term\">" + x + "</div>";
+      x = "<div class=quote term>" + x + "</div>";
+      x = x.replace(new RegExp('/', 'gi'), specialSlash);
+      x = x.replace(new RegExp(':', 'gi'), specialColon);
       return x;
     }
 
     function termReFunction(x) {
-      // console.log(x);
       x = x.replace("<div", "</div><div");
       x = x.replace("/div>", "/div><div class=\"term\">");
       // console.log(x);
@@ -157,6 +158,9 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      // console.log(sourceElementId);
+      // console.log(targetElementId);
+
       var str = document.getElementById(sourceElementId).value;
       updateUrl(encodeURIComponent(str));
 
@@ -166,8 +170,6 @@
       var hasError = false;
 
       console.log(str);
-      // console.log(sourceElementId);
-      // console.log(targetElementId);
 
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
@@ -175,13 +177,9 @@
         hasError = true;
       }
 
-      // str = str.replaceAll("“", "\""); // quote cleaner
-      // str = str.replaceAll("”", "\""); // quote cleaner
-
-      str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
       str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
-      // str = str.replace(new RegExp(specialEmbaseExact, 'gi'), embaseExact); //un-special-fy embase
-      // str = str.replace(new RegExp(specialEmbasePhrase, 'gi'), embasePhrase); //un-special-fy embase
+      str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
+      // str = str.replace(pubmedRe, function (x) { return pubmedFunction(x); }); //TODO bestaat dit nog in PubMed? Of is alles met ~ tussen de [] 
       str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
       str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
       str = str.replace(notRe, function (x) { return booleanNotFunction(x); });
@@ -194,8 +192,11 @@
       str = str.replaceAll("[", "<div class=\"square-brackets\">[");
       str = str.replaceAll("]", "]</div>");
 
+      str = str.replace(new RegExp(specialSlash, 'gi'), '/'); //un-special-fy
+      str = str.replace(new RegExp(specialColon, 'gi'), ':'); //un-special-fy
       str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
       str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
+      str = str.replace('class=quote term', 'class=\"quote term\"'); //un-special-fy quote
 
       // make stray words elements
       str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
@@ -304,8 +305,6 @@
     #medsyntax-target2 div.quote,
     #medsyntax-target3 div.quote,
     #medsyntax-target4 div.quote {
-      margin-left: 5px;
-      margin-right: 5px;
       margin-bottom: 3px;
       background: lightgray;
     }
@@ -351,8 +350,7 @@
       /* font-size: small; */
       /* background-color: lightgray; */
       color: rgb(111, 111, 111);
-      /* padding: 5px; */
-      /* border-radius: 1px; */
+      margin-right: 2px;
     }
 
     #medsyntax-target div.embase,
@@ -363,8 +361,19 @@
       /* font-size: small; */
       /* background-color: lightgray; */
       color: rgb(111, 111, 111);
-      /* padding: 5px; */
-      /* border-radius: 1px; */
+      margin-right: 2px;
+    }
+
+    #medsyntax-target div.pubmed,
+    #medsyntax-target1 div.pubmed,
+    #medsyntax-target2 div.pubmed,
+    #medsyntax-target3 div.pubmed,
+    #medsyntax-target4 div.pubmed {
+      /* font-size: small; */
+      /* background-color: lightgray; */
+      color: rgb(111, 111, 111);
+      margin-right: 3px;
+      margin-left: 3px;
     }
 
     p.warning-medsyntax {
