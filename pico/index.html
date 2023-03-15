@@ -8,16 +8,16 @@
 </head>
 
 <body>
-  <h3>P</h3>
+  <h3>P (Population/Problem)</h3>
   <textarea id="query-input1" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onchange='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
-  <h3>I</h3>
+  <h3>I (Intervention)</h3>
   <textarea id="query-input2" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input2","medsyntax-target2")' onchange='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
-  <h3>C</h3>
+  <h3>C (Comparison/Control)</h3>
   <textarea id="query-input3" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input3","medsyntax-target3")' onchange='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
-  <h3>O</h3>
+  <h3>O (Outcome)</h3>
   <textarea id="query-input4" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input4","medsyntax-target4")' onchange='syntaxCheck("query-input4","medsyntax-target4")'></textarea>
 
@@ -61,7 +61,7 @@
 
     $(document).ready(function () {
       hideWarnings();
-      // document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
+      // document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx OR amputation OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab])) "demo something"/bv/gh AND nearDemo1 NEAR/2 nearDemo2 AND demoTiab[tiab] AND ("moreDemo something" OR demoMore) AND "hip pain"[Title/Abstract:~2] NOT (endDemo:ti,ab OR endDemo/xp/ti)';
       document.getElementById("demo2").innerText = '("just a demo" OR test) AND visual';
     });
 
@@ -107,7 +107,7 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
-    var embaseRe = new RegExp('(([\\\\/][A-Za-z])\\\w+|([\\\\:][A-Za-z])\\\w+|(\\w+[A-Za-z][\\\\/][0-9]+))', 'gi');
+    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+)', 'gi');
     var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
     var embaseExact = "/";
@@ -395,59 +395,59 @@
     }
 
     #query-input1 {
-      border-color: #ffc000;
+      border-color: #E12A39;
       border-width: 3px;
     }
 
     #query-input1:focus {
-      border-color: #ffc000;
+      border-color: #E12A39;
       border-width: 4px;
     }
 
     #query-input2 {
-      border-color: #70ad47;
+      border-color: #89CA26;
       border-width: 3px;
     }
 
     #query-input2:focus {
-      border-color: #70ad47;
+      border-color: #89CA26;
       border-width: 4px;
     }
 
     #query-input3 {
-      border-color: #ed7d31;
+      border-color: #FFB407;
       border-width: 3px;
     }
 
     #query-input3:focus {
-      border-color: #ed7d31;
+      border-color: #FFB407;
       border-width: 4px;
     }
 
     #query-input4 {
-      border-color: #5b9bd5;
+      border-color: #7527A1;
       border-width: 3px;
     }
 
     #query-input4:focus {
-      border-color: #5b9bd5;
+      border-color: #7527A1;
       border-width: 4px;
     }
 
     #medsyntax-target1 {
-      border-color: #ffc000;
+      border-color: #E12A39;
     }
 
     #medsyntax-target2 {
-      border-color: #70ad47;
+      border-color: #89CA26;
     }
 
     #medsyntax-target3 {
-      border-color: #ed7d31;
+      border-color: #FFB407;
     }
 
     #medsyntax-target4 {
-      border-color: #5b9bd5;
+      border-color: #7527A1;
     }
 
     #medsyntax div {

@@ -55,7 +55,7 @@
         syntaxCheck("query-input1", "medsyntax-target1");
       }
 
-      document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx OR amputation OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab])) "demo something"/bv AND nearDemo1 NEAR/2 nearDemo2 AND demoTiab[tiab] AND ("moreDemo something" OR demoMore) AND "hip pain"[Title/Abstract:~2] NOT endDemo';
+      document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx OR amputation OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab])) "demo something"/bv/gh AND nearDemo1 NEAR/2 nearDemo2 AND demoTiab[tiab] AND ("moreDemo something" OR demoMore) AND "hip pain"[Title/Abstract:~2] NOT (endDemo:ti,ab OR endDemo/xp/ti)';
     });
 
     function updateUrl(urlParameter) {
@@ -110,7 +110,7 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
-    var embaseRe = new RegExp('(([\\\\/][A-Za-z])\\\w+|([\\\\:][A-Za-z])\\\w+|(\\w+[A-Za-z][\\\\/][0-9]+))', 'gi');
+    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+)', 'gi');
     var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
     var embaseExact = "/";
