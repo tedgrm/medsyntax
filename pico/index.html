@@ -2,6 +2,7 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="description" content="Syntax assistant for pubmed, embase and other (medical) database search engines">
   <title>Medsyntax</title>
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
@@ -29,7 +30,6 @@
 
   <div id="medsyntax">
     <h3>Medsyntax:</h3>
-
     <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
     <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
 
@@ -57,6 +57,16 @@
    -->
 
   <script>
+
+
+    $(document).ready(function () {
+      hideWarnings();
+      // document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
+      document.getElementById("demo2").innerText = '("just a demo" OR test) AND visual';
+    });
+
+
+    
     function demoClickFunction() {
       $("#query-input1").val($("#demo2").text());
       $("#query-input2").val($("#demo2").text());
@@ -69,14 +79,6 @@
       syntaxCheck("query-input4", "medsyntax-target4");
     }
 
-    $(document).ready(function () {
-      hideWarnings();
-      document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx amputation*[tiab] OR phalangeal amputation*[tiab] OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab]))';
-      // document.getElementById("demo2").innerText = '("just a demo" OR test) AND visual';
-    });
-
-    // var sourceElementId = "query-input";
-    // var targetElementId = "medsyntax-target";
     var warningBracketCloseElementId = "warning-bracket-close";
     var warningBracketOpenElementId = "warning-bracket-open";
     var warningSquareBracketCloseElementId = "warning-square-bracket-close";
@@ -93,14 +95,39 @@
       document.getElementById(warningAmbiguousAndElementId).hidden = true;
     }
 
-    var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
 
+
+
+
+    //*** Syntax highlighter code ***//
+
+    var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
     var termRe = new RegExp('\\/div\\>(.[A-Z]{1,}?)\\<div', 'gi'); //TODO
 
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
+    var embaseRe = new RegExp('(([\\\\/][A-Za-z])\\\w+|([\\\\:][A-Za-z])\\\w+|(\\w+[A-Za-z][\\\\/][0-9]+))', 'gi');
+    var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
+    var embasePhrase = ":";
+    var embaseExact = "/";
+    var specialColon = "g4h4j4m4j1k5g6h6g";
+    var specialSlash = "n7k8n8j4m4j1k5g4n";
     var special = "___";
+
+    function embaseFunction(x) {
+      console.log(x);
+      x = "<div class=embase>" + x + "</div>";
+      console.log(x);
+      return x;
+    }
+
+    function pubmedFunction(x) {
+      console.log(x);
+      x = "<div class=pubmed>" + x + "</div>";
+      console.log(x);
+      return x;
+    }
 
     function booleanAndFunction(x) {
       x = "<div class=\"boolean and\">" + x + "</div>";
@@ -119,12 +146,13 @@
 
     function quotedTermToElement(x) {
       x = x.replace(new RegExp(' ', 'gi'), special);
-      x = "<div class=\"quote term\">" + x + "</div>";
+      x = "<div class=quote term>" + x + "</div>";
+      x = x.replace(new RegExp('/', 'gi'), specialSlash);
+      x = x.replace(new RegExp(':', 'gi'), specialColon);
       return x;
     }
 
     function termReFunction(x) {
-      // console.log(x);
       x = x.replace("<div", "</div><div");
       x = x.replace("/div>", "/div><div class=\"term\">");
       // console.log(x);
@@ -132,14 +160,13 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      var str = document.getElementById(sourceElementId).value;
       document.getElementById("demo-button").hidden = true; // move somewhere else
 
       hideWarnings();
       var hasError = false;
 
-      console.log(sourceElementId);
-      console.log(targetElementId);
-      var str = document.getElementById(sourceElementId).value;
+      console.log(str);   
 
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
@@ -147,10 +174,9 @@
         hasError = true;
       }
 
-      str = str.replaceAll("“", "\""); // quote cleaner
-      str = str.replaceAll("”", "\""); // quote cleaner
-
       str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
+      str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
+      // str = str.replace(pubmedRe, function (x) { return pubmedFunction(x); }); //TODO bestaat dit nog in PubMed? Of is alles met ~ tussen de [] 
       str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
       str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
       str = str.replace(notRe, function (x) { return booleanNotFunction(x); });
@@ -163,8 +189,12 @@
       str = str.replaceAll("[", "<div class=\"square-brackets\">[");
       str = str.replaceAll("]", "]</div>");
 
+      str = str.replace(new RegExp(specialSlash, 'gi'), '/'); //un-special-fy
+      str = str.replace(new RegExp(specialColon, 'gi'), ':'); //un-special-fy
       str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
-
+      str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
+      str = str.replace('class=quote term', 'class=\"quote term\"'); //un-special-fy quote
+      
       // make stray words elements
       str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
       strOld = "";
@@ -177,10 +207,9 @@
 
       //TODO regex toevoegen om laatste strays op te pakken: moet ook vreemde tekens oppakken
       res = str;
-
-      // console.log(str); 
-
       document.getElementById(targetElementId).innerHTML = res;
+
+      // WARNINGS
 
       // bracket warnings ( and )
       bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
@@ -441,8 +470,6 @@
     #medsyntax-target2 div.quote,
     #medsyntax-target3 div.quote,
     #medsyntax-target4 div.quote {
-      margin-left: 5px;
-      margin-right: 5px;
       margin-bottom: 3px;
       background: lightgray;
     }
@@ -485,7 +512,33 @@
     #medsyntax-target2 div.square-brackets,
     #medsyntax-target3 div.square-brackets,
     #medsyntax-target4 div.square-brackets {
+      /* font-size: small; */
+      /* background-color: lightgray; */
       color: rgb(111, 111, 111);
+      margin-right: 2px;
+    }
+
+    #medsyntax-target div.embase,
+    #medsyntax-target1 div.embase,
+    #medsyntax-target2 div.embase,
+    #medsyntax-target3 div.embase,
+    #medsyntax-target4 div.embase {
+      /* font-size: small; */
+      /* background-color: lightgray; */
+      color: rgb(111, 111, 111);
+      margin-right: 2px;
+    }
+
+    #medsyntax-target div.pubmed,
+    #medsyntax-target1 div.pubmed,
+    #medsyntax-target2 div.pubmed,
+    #medsyntax-target3 div.pubmed,
+    #medsyntax-target4 div.pubmed {
+      /* font-size: small; */
+      /* background-color: lightgray; */
+      color: rgb(111, 111, 111);
+      margin-right: 3px;
+      margin-left: 3px;
     }
 
     p.warning-medsyntax {
@@ -495,7 +548,7 @@
     h3 {
       color: black;
       background-color: lightgrey;
-      padding: 3px;
+      padding: 5px;
       border-width: 5px;
       border-radius: 5px;
       border-color: darkgray;
