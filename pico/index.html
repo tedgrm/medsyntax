@@ -10,16 +10,20 @@
 <body>
   <h3>P (Population/Problem)</h3>
   <textarea id="query-input1" class="query-input" name="query-input" rows="3" cols="100"
-    onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onchange='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
+    onkeyup='syntaxCheck("query-input1","medsyntax-target1")'
+    onchange='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
   <h3>I (Intervention)</h3>
   <textarea id="query-input2" class="query-input" name="query-input" rows="3" cols="100"
-    onkeyup='syntaxCheck("query-input2","medsyntax-target2")' onchange='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
+    onkeyup='syntaxCheck("query-input2","medsyntax-target2")'
+    onchange='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
   <h3>C (Comparison/Control)</h3>
   <textarea id="query-input3" class="query-input" name="query-input" rows="3" cols="100"
-    onkeyup='syntaxCheck("query-input3","medsyntax-target3")' onchange='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
+    onkeyup='syntaxCheck("query-input3","medsyntax-target3")'
+    onchange='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
   <h3>O (Outcome)</h3>
   <textarea id="query-input4" class="query-input" name="query-input" rows="3" cols="100"
-    onkeyup='syntaxCheck("query-input4","medsyntax-target4")' onchange='syntaxCheck("query-input4","medsyntax-target4")'></textarea>
+    onkeyup='syntaxCheck("query-input4","medsyntax-target4")'
+    onchange='syntaxCheck("query-input4","medsyntax-target4")'></textarea>
 
   <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query. Or not enough ) in query.</p>
   <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query. Or not enough ( in query.</p>
@@ -66,7 +70,7 @@
     });
 
 
-    
+
     function demoClickFunction() {
       $("#query-input1").val($("#demo2").text());
       $("#query-input2").val($("#demo2").text());
@@ -166,7 +170,7 @@
       hideWarnings();
       var hasError = false;
 
-      console.log(str);   
+      console.log(str);
 
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
@@ -194,7 +198,7 @@
       str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
       str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
       str = str.replace('class=quote term', 'class=\"quote term\"'); //un-special-fy quote
-      
+
       // make stray words elements
       str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
       strOld = "";
@@ -405,22 +409,22 @@
     }
 
     #query-input2 {
-      border-color: #89CA26;
+      border-color: #FFB407;
       border-width: 3px;
     }
 
     #query-input2:focus {
-      border-color: #89CA26;
+      border-color: #FFB407;
       border-width: 4px;
     }
 
     #query-input3 {
-      border-color: #FFB407;
+      border-color: #89CA26;
       border-width: 3px;
     }
 
     #query-input3:focus {
-      border-color: #FFB407;
+      border-color: #89CA26;
       border-width: 4px;
     }
 
@@ -439,11 +443,11 @@
     }
 
     #medsyntax-target2 {
-      border-color: #89CA26;
+      border-color: #FFB407;
     }
 
     #medsyntax-target3 {
-      border-color: #FFB407;
+      border-color: #89CA26;
     }
 
     #medsyntax-target4 {
