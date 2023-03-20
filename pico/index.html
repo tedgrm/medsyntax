@@ -8,19 +8,19 @@
 </head>
 
 <body>
-  <h3>P (Population/Problem)</h3>
+  <h3 id="medsyntax-title1">P (Population/Problem)</h3>
   <textarea id="query-input1" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")'
     onchange='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
-  <h3>I (Intervention)</h3>
+  <h3 id="medsyntax-title2">I (Intervention)</h3>
   <textarea id="query-input2" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input2","medsyntax-target2")'
     onchange='syntaxCheck("query-input2","medsyntax-target2")'></textarea>
-  <h3>C (Comparison/Control)</h3>
+  <h3 id="medsyntax-title3">C (Comparison/Control)</h3>
   <textarea id="query-input3" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input3","medsyntax-target3")'
     onchange='syntaxCheck("query-input3","medsyntax-target3")'></textarea>
-  <h3>O (Outcome)</h3>
+  <h3 id="medsyntax-title4">O (Outcome)</h3>
   <textarea id="query-input4" class="query-input" name="query-input" rows="3" cols="100"
     onkeyup='syntaxCheck("query-input4","medsyntax-target4")'
     onchange='syntaxCheck("query-input4","medsyntax-target4")'></textarea>
@@ -33,7 +33,7 @@
   <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
 
   <div id="medsyntax">
-    <h3>Medsyntax PICO:</h3>
+    <h3 id="medsyntax-title">Medsyntax PICO:</h3>
     <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
     <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
 
@@ -48,6 +48,43 @@
     <p id="full-string">full query will be output here</p>
   </div>
 
+  <button type="submit" hidden="hidden">
+    <a id="download-button-hidden" style="text-decoration: none;color: inherit;"
+      onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
+      href="#" download="medsyntax.html">Download Hidden</a>
+  </button>
+  <button id="download-button" onclick="downloadFunction()">Download</button>
+
+  <!-- The button used to copy the query -->
+  <input type="text" value="Hello World" id="myQueryInput" hidden="hidden">
+
+  <div class="tooltip">
+    <button id="copy-query-button" onclick="copyQueryFunction()" onmouseout="outQueryFunc()">
+      <span class="tooltiptext" id="myQueryTooltip">Copy query to clipboard</span>
+      Copy query
+    </button>
+  </div>
+
+  <script>
+    function copyQueryFunction() {
+      var copyText = document.getElementById("myQueryInput");
+      copyText.value = "test";
+      copyText.value = document.getElementById("full-string").innerHTML;
+      console.log(copyText.value);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+
+      var tooltip = document.getElementById("myQueryTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    }
+
+    function outQueryFunc() {
+      var tooltip = document.getElementById("myQueryTooltip");
+      tooltip.innerHTML = "Copy query to clipboard";
+    }
+  </script>
+
   <!-- Features:
     - Haakjes herkennen.
     - Blokhaken (tiab, mesh etc) herkennen.
@@ -61,7 +98,6 @@
    -->
 
   <script>
-
 
     $(document).ready(function () {
       hideWarnings();
@@ -83,6 +119,34 @@
       syntaxCheck("query-input4", "medsyntax-target4");
     }
 
+    function downloadFunction() {
+      document.getElementById("query-input1").hidden = true;
+      document.getElementById("query-input2").hidden = true;
+      document.getElementById("query-input3").hidden = true;
+      document.getElementById("query-input4").hidden = true;
+      document.getElementById("medsyntax-title").hidden = true;
+      document.getElementById("medsyntax-title1").hidden = true;
+      document.getElementById("medsyntax-title2").hidden = true;
+      document.getElementById("medsyntax-title3").hidden = true;
+      document.getElementById("medsyntax-title4").hidden = true;
+      document.getElementById("download-button").hidden = true;
+      // document.getElementById("copy-query-button").hidden = true;
+
+      document.getElementById("download-button-hidden").click();
+
+      document.getElementById("medsyntax-title").hidden = false;
+      document.getElementById("medsyntax-title1").hidden = false;
+      document.getElementById("medsyntax-title2").hidden = false;
+      document.getElementById("medsyntax-title3").hidden = false;
+      document.getElementById("medsyntax-title4").hidden = false;
+      document.getElementById("query-input1").hidden = false;
+      document.getElementById("query-input2").hidden = false;
+      document.getElementById("query-input3").hidden = false;
+      document.getElementById("query-input4").hidden = false;
+      document.getElementById("download-button").hidden = false;
+      // document.getElementById("copy-query-button").hidden = false;
+    }
+
     var warningBracketCloseElementId = "warning-bracket-close";
     var warningBracketOpenElementId = "warning-bracket-open";
     var warningSquareBracketCloseElementId = "warning-square-bracket-close";
@@ -101,12 +165,10 @@
 
 
 
-
-
     //*** Syntax highlighter code ***//
 
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
-    var termRe = new RegExp('\\/div\\>(.[A-Z]{1,}?)\\<div', 'gi'); //TODO
+    var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi'); //TODO
 
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
@@ -150,7 +212,7 @@
 
     function quotedTermToElement(x) {
       x = x.replace(new RegExp(' ', 'gi'), special);
-      x = "<div class=quote term>" + x + "</div>";
+      x = "<div class=quote-term>" + x + "</div>";
       x = x.replace(new RegExp('/', 'gi'), specialSlash);
       x = x.replace(new RegExp(':', 'gi'), specialColon);
       return x;
@@ -197,7 +259,7 @@
       str = str.replace(new RegExp(specialColon, 'gi'), ':'); //un-special-fy
       str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
       str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
-      str = str.replace('class=quote term', 'class=\"quote term\"'); //un-special-fy quote
+      str = str.replace('class=quote-term', 'class=\"quote-term\"'); //un-special-fy quote
 
       // make stray words elements
       str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
@@ -357,9 +419,6 @@
 
   </script>
 
-  <script>
-  </script>
-
   <style>
     [hidden] {
       display: none !important;
@@ -458,7 +517,14 @@
     #medsyntax div {
       color: black;
       display: inline-block;
-      padding-bottom: 2px;
+      margin-bottom: 2px;
+    }
+
+    #medsyntax div.term {
+      /* color: red; */
+      border-bottom-style: dashed;
+      border-bottom-color: lightgray;
+      margin-left: 5px;
     }
 
     #medsyntax div.search-string {
@@ -470,11 +536,11 @@
       font: icon;
     }
 
-    #medsyntax-target div.quote,
-    #medsyntax-target1 div.quote,
-    #medsyntax-target2 div.quote,
-    #medsyntax-target3 div.quote,
-    #medsyntax-target4 div.quote {
+    #medsyntax-target div.quote-term,
+    #medsyntax-target1 div.quote-term,
+    #medsyntax-target2 div.quote-term,
+    #medsyntax-target3 div.quote-term,
+    #medsyntax-target4 div.quote-term {
       margin-bottom: 3px;
       background: lightgray;
     }
@@ -498,14 +564,8 @@
       padding: 3px;
       border-width: 3px;
       border-radius: 5px;
-      border-bottom: darkorange;
-      border-bottom-style: solid;
-      border-left: darkorange;
-      border-left-style: solid;
-      border-right: darkorange;
-      border-right-style: solid;
-      border-top: darkorange;
-      border-top-style: solid;
+      border: darkorange;
+      border-style: solid;
       margin-left: 3px;
       margin-right: 3px;
       margin-bottom: 3px;
@@ -517,8 +577,6 @@
     #medsyntax-target2 div.square-brackets,
     #medsyntax-target3 div.square-brackets,
     #medsyntax-target4 div.square-brackets {
-      /* font-size: small; */
-      /* background-color: lightgray; */
       color: rgb(111, 111, 111);
       margin-right: 2px;
     }
@@ -528,10 +586,7 @@
     #medsyntax-target2 div.embase,
     #medsyntax-target3 div.embase,
     #medsyntax-target4 div.embase {
-      /* font-size: small; */
-      /* background-color: lightgray; */
       color: rgb(111, 111, 111);
-      margin-right: 2px;
     }
 
     #medsyntax-target div.pubmed,
@@ -539,8 +594,6 @@
     #medsyntax-target2 div.pubmed,
     #medsyntax-target3 div.pubmed,
     #medsyntax-target4 div.pubmed {
-      /* font-size: small; */
-      /* background-color: lightgray; */
       color: rgb(111, 111, 111);
       margin-right: 3px;
       margin-left: 3px;
@@ -561,6 +614,47 @@
 
     p {
       padding: 5px;
+    }
+  </style>
+
+  <!-- source: w3schools -->
+  <style>
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 140px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 150%;
+      left: 50%;
+      margin-left: -75px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
     }
   </style>
 
