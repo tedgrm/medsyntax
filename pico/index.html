@@ -65,6 +65,13 @@
     </button>
   </div>
 
+  <button type="submit" hidden="hidden">
+    <a id="download-button-hidden" style="text-decoration: none;color: inherit;"
+      onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
+      href="#" download="medsyntax.html">Download Hidden</a>
+  </button>
+  <button id="download-button" onclick="downloadFunction()">Download</button>
+  
   <script>
     function copyQueryFunction() {
       var copyText = document.getElementById("myQueryInput");
