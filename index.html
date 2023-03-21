@@ -182,7 +182,7 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
-    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+)', 'gi');
+    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+|(\\w+[A-Za-z][0-9]+))', 'gi');
     var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
     var embaseExact = "/";
