@@ -30,7 +30,7 @@
   <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query. Or not enough ] in query.</p>
   <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query. Or not enough [] in query.</p>
   <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
-  <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically unclear boolean operator(s).</p>
+  <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically potentially unclear boolean operator(s).</p>
 
   <div id="medsyntax">
     <h3 id="medsyntax-title">Medsyntax PICO:</h3>
@@ -173,7 +173,7 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
-    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+)', 'gi');
+    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+)', 'gi');
     var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
     var embaseExact = "/";
