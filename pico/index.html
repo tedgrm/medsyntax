@@ -48,13 +48,6 @@
     <p id="full-string">full query will be output here</p>
   </div>
 
-  <button type="submit" hidden="hidden">
-    <a id="download-button-hidden" style="text-decoration: none;color: inherit;"
-      onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
-      href="#" download="medsyntax.html">Download Hidden</a>
-  </button>
-  <button id="download-button" onclick="downloadFunction()">Download</button>
-
   <!-- The button used to copy the query -->
   <input type="text" value="Hello World" id="myQueryInput" hidden="hidden">
 
@@ -180,7 +173,7 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
-    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+|(\\w+[A-Za-z][0-9]+))', 'gi');
+    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|(\\w+[A-Za-z][\/][0-9]+)|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+)', 'gi');
     var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
     var embaseExact = "/";
