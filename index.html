@@ -284,6 +284,7 @@
       str = str.replace(new RegExp(specialColon, 'gi'), ':'); //un-special-fy
       str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
       str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
+      str = str.replace('</div>.','</div><div class="embase">.</div>'); //embas "." cleanup
       str = str.replace('class=quote-term', 'class=\"quote-term\"'); //un-special-fy quote
 
       // make stray words elements
