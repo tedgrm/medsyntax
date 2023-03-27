@@ -58,11 +58,21 @@
     </button>
   </div>
 
+    <!-- The button used to copy the link -->
+    <!-- <input type="text" value="Hello World" id="myLinkInput" hidden="hidden">
+
+    <div class="tooltip">
+      <button id="copy-link-button" onclick="copyLinkFunction()" onmouseout="outLinkFunc()">
+        <span class="tooltiptext" id="myLinkTooltip">Copy link to clipboard</span>
+        Copy link
+      </button>
+    </div>-->
+  
   <button type="submit" hidden="hidden">
     <a id="download-button-hidden" style="text-decoration: none;color: inherit;"
       onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
       href="#" download="medsyntax.html">Download Hidden</a>
-  </button>
+  </button> 
   <button id="download-button" onclick="downloadFunction()">Download</button>
 
   <script>
@@ -83,6 +93,24 @@
       var tooltip = document.getElementById("myQueryTooltip");
       tooltip.innerHTML = "Copy query to clipboard";
     }
+
+    function copyLinkFunction() {
+      var copyText = document.getElementById("myLinkInput");
+      copyText.value = "test";
+      copyText.value = window.location.href;
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+
+      var tooltip = document.getElementById("myLinkTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    }
+
+    function outLinkFunc() {
+      var tooltip = document.getElementById("myLinkTooltip");
+      tooltip.innerHTML = "Copy link to clipboard";
+    }
+
   </script>
 
   <!-- Features:
@@ -146,7 +174,7 @@
       document.getElementById("query-input3").hidden = false;
       document.getElementById("query-input4").hidden = false;
       document.getElementById("download-button").hidden = false;
-      // document.getElementById("copy-query-button").hidden = false;
+   
     }
 
     var warningBracketCloseElementId = "warning-bracket-close";
@@ -175,6 +203,7 @@
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
+    var nearOpRe = new RegExp('(( \\w+[A-Za-z][\/][0-9]+)|( [A-Za-z][\/][0-9]+))', 'gi');
     var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+)', 'gi');
     var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
     var embasePhrase = ":";
@@ -183,17 +212,21 @@
     var specialSlash = "n7k8nkumhngbwSAVRUTY";
     var special = "___";
 
+    function nearOpFunction(x) {
+      console.log("Near:   " + x);
+      x = "<div class=near>" + x + " " + "</div>";
+      x = x.replace(new RegExp('/', 'gi'), specialSlash);
+      // console.log(x);
+      return x;
+    }
+
     function embaseFunction(x) {
-      console.log(x);
       x = "<div class=embase>" + x + "</div>";
-      console.log(x);
       return x;
     }
 
     function pubmedFunction(x) {
-      console.log(x);
       x = "<div class=pubmed>" + x + "</div>";
-      console.log(x);
       return x;
     }
 
@@ -228,7 +261,14 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      // console.log(sourceElementId);
+      // console.log(targetElementId);
+
       var str = document.getElementById(sourceElementId).value;
+      str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
+      str = str.replace(/\r?\n|\r/g, ' ');
+      str = str.replace('  ', ' ');
+
       document.getElementById("demo-button").hidden = true; // move somewhere else
 
       hideWarnings();
@@ -244,6 +284,7 @@
 
       str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
       str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
+      str = str.replace(nearOpRe, function (x) { return nearOpFunction(x); });
       // str = str.replace(pubmedRe, function (x) { return pubmedFunction(x); }); //TODO bestaat dit nog in PubMed? Of is alles met ~ tussen de [] 
       str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
       str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
@@ -583,6 +624,16 @@
       margin-right: 2px;
     }
 
+    #medsyntax-target div.near,
+    #medsyntax-target1 div.near,
+    #medsyntax-target2 div.near,
+    #medsyntax-target3 div.near,
+    #medsyntax-target4 div.near {
+      margin-left: 5px;
+      color: rgb(111, 111, 111);
+      font-weight: bold;
+    }
+
     #medsyntax-target div.embase,
     #medsyntax-target1 div.embase,
     #medsyntax-target2 div.embase,
@@ -659,7 +710,6 @@
       opacity: 1;
     }
   </style>
-
 </body>
 
 </html>
