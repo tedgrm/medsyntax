@@ -10,7 +10,10 @@
 <body>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
-
+  <button onclick="clearButtonFunc()">
+      Click here to clear
+  </button>
+  
   <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query. Or not enough ) in query.</p>
   <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query. Or not enough ( in query.</p>
   <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query. Or not enough ] in query.</p>
@@ -52,9 +55,6 @@
       href="#" download="medsyntax.html">Download Hidden</a>
   </button>
   <button id="download-button" onclick="downloadFunction()">Download</button>
-  <button onclick="clearButtonFunc()">
-      Click here to clear
-  </button>
   
   <script>
     function copyQueryFunction() {
