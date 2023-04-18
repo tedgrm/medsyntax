@@ -52,7 +52,7 @@
       href="#" download="medsyntax.html">Download Hidden</a>
   </button>
   <button id="download-button" onclick="downloadFunction()">Download</button>
-  <button onclick="document.getElementById('query-input1').value = ''">
+  <button onclick="clearButtonFunc()">
       Click here to clear
   </button>
   
@@ -74,6 +74,11 @@
       tooltip.innerHTML = "Copy query to clipboard";
     }
 
+    function clearButtonFunc() {
+      document.getElementById('query-input1').value = '';
+      syntaxCheck("query-input1", "medsyntax-target1");
+    }
+    
     function copyLinkFunction() {
       var copyText = document.getElementById("myLinkInput");
       copyText.value = "test";
