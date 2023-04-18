@@ -52,7 +52,10 @@
       href="#" download="medsyntax.html">Download Hidden</a>
   </button>
   <button id="download-button" onclick="downloadFunction()">Download</button>
-
+  <button onclick="document.getElementById('query-input1').value = ''">
+      Click here to clear
+  </button>
+  
   <script>
     function copyQueryFunction() {
       var copyText = document.getElementById("myQueryInput");
