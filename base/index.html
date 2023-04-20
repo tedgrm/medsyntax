@@ -29,7 +29,7 @@
     <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
     <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
 
-    <div id="medsyntax-target1" class="medsyntax-target">Please input search query in text area.</div>
+    <div id="medsyntax-target1" class="medsyntax-target brackets">Please input search query in text area.</div>
   </div>
 
   <!-- The button used to copy the query -->
@@ -354,6 +354,35 @@
         }
       }
 
+      // $('div.brackets').mouseout(function (event) {
+      //   $(this).removeClass('hover');
+      //   // console.log('mouseout: ' + this.innerText);
+      //   event.stopPropagation();
+      //   return false;
+      // });
+
+      // $('div.brackets').mousemove(function (event) {
+      //   $(this).addClass('hover');
+      //   // console.log('mousemove: ' + this.innerText);
+      //   event.stopPropagation();
+      //   return false;
+      // });
+
+      var elementForHover;
+
+      $('.medsyntax-target div').mousemove(function (event) {
+        if (elementForHover != this) {
+          $('.medsyntax-target div').removeClass('hover');
+          console.log(this.innerText);
+          var text = $(this).nextUntil('.brackets, .bracket-close, .bracket-open')
+            .prevUntil('.brackets, .bracket-close, .bracket-open').addClass('hover');
+          console.log('mousemove: ' + text.value);
+          elementForHover = this;
+        }
+        event.stopPropagation();
+        return false;
+      });
+
     }
 
 
@@ -367,6 +396,10 @@
   <style>
     [hidden] {
       display: none !important;
+    }
+
+    .hover {
+      background-color: blue;
     }
 
     body {
