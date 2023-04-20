@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <input type="text" id="fname" name="fname" size="100">
+  <input type="text" id="query-title1" name="query-title1" size="100" onkeyup='updateTitle("query-title1")'>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
@@ -119,39 +119,53 @@
       hideWarnings();
 
       if (location.search.length > 1) {
-        // $("#query-input1").val(decodeURIComponent(location.search.substring(7)));
-        $("#query-input1").val(LZString.decompressFromEncodedURIComponent(location.search.substring(7)));
+        let param1 = getParameterByName('query');
+        $("#query-input1").val(LZString.decompressFromEncodedURIComponent(param1));
         syntaxCheck("query-input1", "medsyntax-target1");
       }
       // document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx OR amputation OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab])) "demo something"/bv/gh AND nearDemo1 NEAR/2 nearDemo2 AND demoTiab[tiab] AND ("moreDemo something" OR demoMore) AND "hip pain"[Title/Abstract:~2] NOT (endDemo:ti,ab OR endDemo/xp/ti)';
       // document.getElementById("demo2").innerText = '(nCoV* or 2019nCoV or 19nCoV or COVID19* or COVID or SARS-COV-2 or SARSCOV-2 or SARS-COV2 or SARSCOV2 or SARS coronavirus 2 or Severe Acute Respiratory Syndrome Coronavirus 2 or Severe Acute Respiratory Syndrome Corona Virus 2).ti,ab,kw,hw,ot.';
       document.getElementById("demo2").innerText = '(COVID-19 [mh] OR COVID-19 Testing[mh] OR COVID-19 Vaccines[mh] OR SARS-CoV-2[mh] OR spike glycoprotein, COVID-19 virus [Supplementary Concept] OR ((Coronavirus[mh:noexp] OR Betacoronavirus[mh:noexp] OR Coronavirus Infections[mh:noexp]) AND (Disease Outbreaks[mh:noexp] OR Epidemics[mh:noexp] OR Pandemics[mh])) OR nCoV[tiab] OR nCoV[tt] OR 2019nCoV[tiab] OR 2019nCoV[tt] OR 19nCoV[tiab] OR 19nCoV[tt] OR COVID19*[tiab] OR COVID19*[tt] OR COVID[tiab] OR COVID[tt] OR SARS-CoV-2[tiab] OR SARS-CoV-2[tt] OR SARSCOV-2[tiab] OR SARSCOV-2[tt] OR SARS-COV2[tiab] OR SARS-COV2[tt] OR SARSCOV2[tiab] OR SARSCOV2[tt] OR SARS coronavirus 2[tiab] OR SARS coronavirus 2[tt] OR Severe Acute Respiratory Syndrome Coronavirus 2[tiab] OR Severe Acute Respiratory Syndrome Coronavirus 2[tt] OR ((severe acute respiratory syndrome[tiab] OR severe acute respiratory syndrome[tt]) AND (corona virus 2[tiab] OR corona virus 2[tt])) OR new coronavirus[tiab] OR (new[tt] AND coronavirus[tt]) OR novel coronavirus[tiab] OR novel coronavirus[tt] OR novel corona virus[tiab] OR (novel[tt] AND corona virus[tt]) OR novel CoV[tiab] OR (novel[tt] AND CoV[tt]) OR novel HCoV[tiab] OR (novel[tt] AND HCoV[tt]) OR ((“19″[tiab] OR “19”[tt] OR “2019”[tiab] OR “2019”[tt] OR Wuhan[tiab] OR Wuhan[tt] OR Hubei[tiab] OR Hubei[tt]) AND (coronavirus*[tiab] OR coronavirus*[tt] OR corona virus*[tiab] OR corona virus*[tt] OR CoV[tiab] OR CoV[tt] OR HCoV[tiab] OR HCoV[tt])) OR longCOVID*[tiab] OR longCOVID*[tt] OR postCOVID*[tiab] OR postCOVID*[tt] OR postcoronavirus*[tiab] OR postcoronavirus*[tt] OR postSARS*[tiab] OR postSARS*[tt] OR ((coronavirus*[tiab] OR coronavirus*[tt] OR corona virus*[tiab] OR corona virus*[tt] OR betacoronavirus*[tiab] OR betacoronavirus*[tt]) AND (outbreak*[tiab] OR outbreak*[tt] OR epidemic*[tiab] OR epidemic*[tt] OR pandemic*[tiab] OR pandemic*[tt] OR crisis[tiab] OR crisis[tt])) OR ((Wuhan[tiab] OR Wuhan[tt] OR Hubei[tiab] OR Hubei[tt]) AND (pneumonia[tiab] OR pneumonia[tt]))) AND 2019/10/31:3000/12/31[Date – Publication]';
 
+      let param2 = getParameterByName('querytitle');
+      updateTitle('query-title1');
+      $("#query-title1").val(LZString.decompressFromEncodedURIComponent(param2));
     });
 
-    function updateUrl(urlParameter) {
-      var url = window.location.href.split('?')[0];
-      if (url.indexOf('?') > -1) {
-        url += ('&' + urlParameter)
-      } else {
-        url += ('?' + urlParameter)
-      }
+    function updateTitle(titleId) {
+      var title = document.getElementById(titleId).value;
+      document.title = 'Medsyntax: ' + title;
+      updateUrl('querytitle', LZString.compressToEncodedURIComponent(title));
+    }
 
-      const nextURL = url;
-      const nextTitle = 'My new page title';
-      const nextState = { additionalInformation: 'Updated the URL with JS' };
+    function updateUrl(name, value) {
+      // Construct URLSearchParams object instance from current URL querystring
+      let queryParams = new URLSearchParams(window.location.search);
 
-      // This will create a new entry in the browser's history, without reloading
-      window.history.pushState(nextState, nextTitle, nextURL);
+      // Set new or modify existing page value
+      queryParams.set(name, value);
 
-      // This will replace the current entry in the browser's history, without reloading
-      window.history.replaceState(nextState, nextTitle, nextURL);
+      // Replace current querystring with the new one
+      history.replaceState(null, 'ietd', "?" + queryParams.toString());
+      history.pushState(null, 'iets', "?" + queryParams.toString());
     }
 
     function demoClickFunction() {
       $("#query-input1").val($("#demo2").text());
       syntaxCheck("query-input1", "medsyntax-target1");
     }
+
+    function getParameterByName(name, url) {
+      if (!url) {
+        url = window.location.href;
+      }
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+    };
 
     function downloadFunction() {
       document.getElementById("query-input1").hidden = true;
@@ -260,7 +274,7 @@
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
       str = str.replace('  ', ' ');
-      updateUrl("query=" + LZString.compressToEncodedURIComponent(str));
+      updateUrl('query', LZString.compressToEncodedURIComponent(str));
 
       document.getElementById("demo-button").hidden = true; // move somewhere else
 
