@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Syntax assistant for pubmed, embase and other (medical) database search engines">
+  <title>Medsyntax</title>
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+</head>
+
+<body>
+  <input type="text" id="fname" name="fname" size="100">
+  <br>
+  <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
+    onkeyup='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
+  <br>
+  <button onclick="clearButtonFunc()">
+    Click here to clear
+  </button>
+
+  <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query. Or not enough ) in query.</p>
+  <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query. Or not enough ( in query.</p>
+  <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query. Or not enough ] in query.</p>
+  <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query. Or not enough [] in query.</p>
+  <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
+  <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically potentially unclear boolean operator(s).</p>
+
+  <div id="medsyntax">
+    <h3 id="medsyntax-title">Medsyntax:</h3>
+    <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
+    <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
+
+    <div id="medsyntax-target1" class="medsyntax-target">Please input search query in text area.</div>
+  </div>
+
+  <!-- The button used to copy the query -->
+  <input type="text" value="Hello World" id="myQueryInput" hidden="hidden">
+
+  <div class="tooltip">
+    <button id="copy-query-button" onclick="copyQueryFunction()" onmouseout="outQueryFunc()">
+      <span class="tooltiptext" id="myQueryTooltip">Copy query to clipboard</span>
+      Copy query
+    </button>
+  </div>
+
+  <!-- The button used to copy the link -->
+  <input type="text" value="Hello World" id="myLinkInput" hidden="hidden">
+
+  <div class="tooltip">
+    <button id="copy-link-button" onclick="copyLinkFunction()" onmouseout="outLinkFunc()">
+      <span class="tooltiptext" id="myLinkTooltip">Copy link to clipboard</span>
+      Copy link
+    </button>
+  </div>
+
+  <button type="submit" hidden="hidden">
+    <a id="download-button-hidden" style="text-decoration: none;color: inherit;"
+      onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
+      href="#" download="medsyntax.html">Download Hidden</a>
+  </button>
+  <button id="download-button" onclick="downloadFunction()">Download</button>
+
+  <script>
+    function copyQueryFunction() {
+      var copyText = document.getElementById("myQueryInput");
+      copyText.value = "test";
+      copyText.value = document.getElementById("query-input1").value;
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+
+      var tooltip = document.getElementById("myQueryTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    }
+
+    function outQueryFunc() {
+      var tooltip = document.getElementById("myQueryTooltip");
+      tooltip.innerHTML = "Copy query to clipboard";
+    }
+
+    function clearButtonFunc() {
+      document.getElementById('query-input1').value = null;
+      syntaxCheck("query-input1", "medsyntax-target1");
+    }
+
+    function copyLinkFunction() {
+      var copyText = document.getElementById("myLinkInput");
+      copyText.value = "test";
+      copyText.value = window.location.href;
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+
+      var tooltip = document.getElementById("myLinkTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    }
+
+    function outLinkFunc() {
+      var tooltip = document.getElementById("myLinkTooltip");
+      tooltip.innerHTML = "Copy link to clipboard";
+    }
+
+  </script>
+
+  <!-- Features:
+    - Haakjes herkennen.
+    - Blokhaken (tiab, mesh etc) herkennen.
+    - Quotes herkennen. (Momenteel enkel " characters.)
+    - Boolean operators herkennen. (Momenteel AND, OR en NOT.)
+    - Onjuist aantal haakjes herkennen. (Bijvoorbeeld niet afgesloten openende haakjes.)
+    - Onjuist aantal quotes herkennen.
+    - Combinatie van AND en OR operatoren op hetzelfde niveau herkennen. (Deze situatie moet vermeden worden door
+    haakjes te plaatsen: een search query zou maar voor 1 uitleg vatbaar moeten zijn om reproduceerbaarheid te garanderen.)
+    - Volledige search query wordt omgezet in HTML elementen zodat met CSS verdere visuele verduidelijking mogelijk is.
+   -->
+
+  <script>
+
+    $(document).ready(function () {
+      hideWarnings();
+
+      if (location.search.length > 1) {
+        // $("#query-input1").val(decodeURIComponent(location.search.substring(7)));
+        $("#query-input1").val(LZString.decompressFromEncodedURIComponent(location.search.substring(7)));
+        syntaxCheck("query-input1", "medsyntax-target1");
+      }
+      // document.getElementById("demo2").innerText = '(diabetes [tiab] OR "Diabetes Mellitus"[Mesh] OR PAOD [tiab] OR "Peripheral Arterial Disease"[Mesh]) AND ("Amputation"[Mesh] OR toe amputation*[tiab] OR transmetatarsal amputation*[tiab] OR minor amputation*[tiab] OR forefoot amputation [tiab] OR Digit amputation* [tiab] OR Digital amputation*[tiab] OR phalanx OR amputation OR transphalangeal amputation*[tiab]) AND (("Aftercare"[Mesh] OR offloading [tiab] OR shoe*[tiab] OR half-shoe* [tiab] OR (cast[tiab] OR shoe implant* [tiab] OR "Rehabilitation"[Mesh]) OR wound care [tiab] OR wound management [tiab] OR dressing*[tiab] OR gauze*[tiab] OR "Negative-Pressure Wound Therapy"[Mesh] OR NTP [tiab] OR NPWT [tiab] OR VAC [tiab])) "demo something"/bv/gh AND nearDemo1 NEAR/2 nearDemo2 AND demoTiab[tiab] AND ("moreDemo something" OR demoMore) AND "hip pain"[Title/Abstract:~2] NOT (endDemo:ti,ab OR endDemo/xp/ti)';
+      // document.getElementById("demo2").innerText = '(nCoV* or 2019nCoV or 19nCoV or COVID19* or COVID or SARS-COV-2 or SARSCOV-2 or SARS-COV2 or SARSCOV2 or SARS coronavirus 2 or Severe Acute Respiratory Syndrome Coronavirus 2 or Severe Acute Respiratory Syndrome Corona Virus 2).ti,ab,kw,hw,ot.';
+      document.getElementById("demo2").innerText = '(COVID-19 [mh] OR COVID-19 Testing[mh] OR COVID-19 Vaccines[mh] OR SARS-CoV-2[mh] OR spike glycoprotein, COVID-19 virus [Supplementary Concept] OR ((Coronavirus[mh:noexp] OR Betacoronavirus[mh:noexp] OR Coronavirus Infections[mh:noexp]) AND (Disease Outbreaks[mh:noexp] OR Epidemics[mh:noexp] OR Pandemics[mh])) OR nCoV[tiab] OR nCoV[tt] OR 2019nCoV[tiab] OR 2019nCoV[tt] OR 19nCoV[tiab] OR 19nCoV[tt] OR COVID19*[tiab] OR COVID19*[tt] OR COVID[tiab] OR COVID[tt] OR SARS-CoV-2[tiab] OR SARS-CoV-2[tt] OR SARSCOV-2[tiab] OR SARSCOV-2[tt] OR SARS-COV2[tiab] OR SARS-COV2[tt] OR SARSCOV2[tiab] OR SARSCOV2[tt] OR SARS coronavirus 2[tiab] OR SARS coronavirus 2[tt] OR Severe Acute Respiratory Syndrome Coronavirus 2[tiab] OR Severe Acute Respiratory Syndrome Coronavirus 2[tt] OR ((severe acute respiratory syndrome[tiab] OR severe acute respiratory syndrome[tt]) AND (corona virus 2[tiab] OR corona virus 2[tt])) OR new coronavirus[tiab] OR (new[tt] AND coronavirus[tt]) OR novel coronavirus[tiab] OR novel coronavirus[tt] OR novel corona virus[tiab] OR (novel[tt] AND corona virus[tt]) OR novel CoV[tiab] OR (novel[tt] AND CoV[tt]) OR novel HCoV[tiab] OR (novel[tt] AND HCoV[tt]) OR ((“19″[tiab] OR “19”[tt] OR “2019”[tiab] OR “2019”[tt] OR Wuhan[tiab] OR Wuhan[tt] OR Hubei[tiab] OR Hubei[tt]) AND (coronavirus*[tiab] OR coronavirus*[tt] OR corona virus*[tiab] OR corona virus*[tt] OR CoV[tiab] OR CoV[tt] OR HCoV[tiab] OR HCoV[tt])) OR longCOVID*[tiab] OR longCOVID*[tt] OR postCOVID*[tiab] OR postCOVID*[tt] OR postcoronavirus*[tiab] OR postcoronavirus*[tt] OR postSARS*[tiab] OR postSARS*[tt] OR ((coronavirus*[tiab] OR coronavirus*[tt] OR corona virus*[tiab] OR corona virus*[tt] OR betacoronavirus*[tiab] OR betacoronavirus*[tt]) AND (outbreak*[tiab] OR outbreak*[tt] OR epidemic*[tiab] OR epidemic*[tt] OR pandemic*[tiab] OR pandemic*[tt] OR crisis[tiab] OR crisis[tt])) OR ((Wuhan[tiab] OR Wuhan[tt] OR Hubei[tiab] OR Hubei[tt]) AND (pneumonia[tiab] OR pneumonia[tt]))) AND 2019/10/31:3000/12/31[Date – Publication]';
+
+    });
+
+    function updateUrl(urlParameter) {
+      var url = window.location.href.split('?')[0];
+      if (url.indexOf('?') > -1) {
+        url += ('&' + urlParameter)
+      } else {
+        url += ('?' + urlParameter)
+      }
+
+      const nextURL = url;
+      const nextTitle = 'My new page title';
+      const nextState = { additionalInformation: 'Updated the URL with JS' };
+
+      // This will create a new entry in the browser's history, without reloading
+      window.history.pushState(nextState, nextTitle, nextURL);
+
+      // This will replace the current entry in the browser's history, without reloading
+      window.history.replaceState(nextState, nextTitle, nextURL);
+    }
+
+    function demoClickFunction() {
+      $("#query-input1").val($("#demo2").text());
+      syntaxCheck("query-input1", "medsyntax-target1");
+    }
+
+    function downloadFunction() {
+      document.getElementById("query-input1").hidden = true;
+      document.getElementById("medsyntax-title").hidden = true;
+      document.getElementById("download-button").hidden = true;
+      document.getElementById("copy-query-button").hidden = true;
+      document.getElementById("copy-link-button").hidden = true;
+
+      document.getElementById("download-button-hidden").click();
+
+      document.getElementById("medsyntax-title").hidden = false;
+      document.getElementById("query-input1").hidden = false;
+      document.getElementById("download-button").hidden = false;
+      document.getElementById("copy-query-button").hidden = false;
+      document.getElementById("copy-link-button").hidden = false;
+    }
+
+    var warningBracketCloseElementId = "warning-bracket-close";
+    var warningBracketOpenElementId = "warning-bracket-open";
+    var warningSquareBracketCloseElementId = "warning-square-bracket-close";
+    var warningSquareBracketOpenElementId = "warning-square-bracket-open";
+    var warningQuotesElementId = "warning-quotes";
+    var warningAmbiguousAndElementId = "warning-ambiguous-and";
+
+    function hideWarnings() {
+      document.getElementById(warningBracketCloseElementId).hidden = true;
+      document.getElementById(warningBracketOpenElementId).hidden = true;
+      document.getElementById(warningSquareBracketCloseElementId).hidden = true;
+      document.getElementById(warningSquareBracketOpenElementId).hidden = true;
+      document.getElementById(warningQuotesElementId).hidden = true;
+      document.getElementById(warningAmbiguousAndElementId).hidden = true;
+    }
+
+
+
+    //*** Syntax highlighter code ***//
+
+    var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
+    var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi'); //TODO
+
+    var andRe = new RegExp('( AND | and )', 'gi');
+    var orRe = new RegExp('( OR | or )', 'gi');
+    var notRe = new RegExp('( NOT | not )', 'gi');
+    var nearOpRe = new RegExp('(( \\w+[A-Za-z][\/][0-9]+)|( [A-Za-z][\/][0-9]+))', 'gi');
+    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+)', 'gi');
+    var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
+    var embasePhrase = ":";
+    var embaseExact = "/";
+    var specialColon = "isfgsvkhADSFVMQEREGQ";
+    var specialSlash = "n7k8nkumhngbwSAVRUTY";
+    var special = "___";
+
+    function nearOpFunction(x) {
+      console.log("Near:   " + x);
+      x = "<div class=near>" + x + " " + "</div>";
+      x = x.replace(new RegExp('/', 'gi'), specialSlash);
+      // console.log(x);
+      return x;
+    }
+
+    function embaseFunction(x) {
+      x = "<div class=embase>" + x + "</div>";
+      return x;
+    }
+
+    function pubmedFunction(x) {
+      x = "<div class=pubmed>" + x + "</div>";
+      return x;
+    }
+
+    function booleanAndFunction(x) {
+      x = "<div class=\"boolean and\">" + x + "</div>";
+      return x;
+    }
+
+    function booleanOrFunction(x) {
+      x = "<div class=\"boolean or\">" + x + "</div>";
+      return x;
+    }
+
+    function booleanNotFunction(x) {
+      x = "<div class=\"boolean not\">" + x + "</div>";
+      return x;
+    }
+
+    function quotedTermToElement(x) {
+      x = x.replace(new RegExp(' ', 'gi'), special);
+      x = "<div class=quote-term>" + x + "</div>";
+      x = x.replace(new RegExp('/', 'gi'), specialSlash);
+      x = x.replace(new RegExp(':', 'gi'), specialColon);
+      return x;
+    }
+
+    function termReFunction(x) {
+      x = x.replace("<div", "</div><div");
+      x = x.replace("/div>", "/div><div class=\"term\">");
+      // console.log(x);
+      return x;
+    }
+
+    function syntaxCheck(sourceElementId, targetElementId) {
+      // console.log(sourceElementId);
+      // console.log(targetElementId);
+
+      var str = document.getElementById(sourceElementId).value;
+      str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
+      str = str.replace(/\r?\n|\r/g, ' ');
+      str = str.replace('  ', ' ');
+      updateUrl("query=" + LZString.compressToEncodedURIComponent(str));
+
+      document.getElementById("demo-button").hidden = true; // move somewhere else
+
+      hideWarnings();
+      var hasError = false;
+
+      console.log(str);
+
+      quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
+      if (quotesCount % 2 != 0) {
+        document.getElementById(warningQuotesElementId).hidden = false;
+        hasError = true;
+      }
+
+      str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
+      str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
+      str = str.replace(nearOpRe, function (x) { return nearOpFunction(x); });
+      // str = str.replace(pubmedRe, function (x) { return pubmedFunction(x); }); //TODO bestaat dit nog in PubMed? Of is alles met ~ tussen de [] 
+      str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
+      str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
+      str = str.replace(notRe, function (x) { return booleanNotFunction(x); });
+
+      // brackets
+      str = str.replaceAll("(", "<div class=\"brackets\"><div class=\"bracket-open\">(</div>");
+      str = str.replaceAll(")", "<div class=\"bracket-close\">)</div></div>");
+
+      // square brackets
+      str = str.replaceAll("[", "<div class=\"square-brackets\">[");
+      str = str.replaceAll("]", "]</div>");
+
+      str = str.replace(new RegExp(specialSlash, 'gi'), '/'); //un-special-fy
+      str = str.replace(new RegExp(specialColon, 'gi'), ':'); //un-special-fy
+      str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
+      str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
+      str = str.replace('</div>.', '</div><div class="embase">.</div>'); //embas "." cleanup
+      str = str.replace('class=quote-term', 'class=\"quote-term\"'); //un-special-fy quote
+
+      // make stray words elements
+      str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
+      strOld = "";
+      while (str != strOld) {
+        strOld = str;
+        // console.log(strOld);
+        str = str.replace(termRe, function (x) { return termReFunction(x); }); //make stray words elements
+        // console.log(str);
+      }
+
+      //TODO regex toevoegen om laatste strays op te pakken: moet ook vreemde tekens oppakken
+      res = str;
+      document.getElementById(targetElementId).innerHTML = res;
+
+      // WARNINGS
+
+      // bracket warnings ( and )
+      bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
+      bracketCloseCount = (str.match(new RegExp('(\\))', 'gi')) || []).length;
+      if (bracketOpenCount > bracketCloseCount) {
+        document.getElementById(warningBracketOpenElementId).hidden = false;
+        hasError = true;
+      }
+      if (bracketOpenCount < bracketCloseCount) {
+        document.getElementById(warningBracketCloseElementId).hidden = false;
+        hasError = true;
+      }
+
+      // bracket warnings [ and ]
+      squareBracketOpenCount = (str.match(new RegExp('(\\[)', 'gi')) || []).length;
+      squareBracketCloseCount = (str.match(new RegExp('(\\])', 'gi')) || []).length;
+      if (squareBracketOpenCount > squareBracketCloseCount) {
+        document.getElementById(warningSquareBracketOpenElementId).hidden = false;
+        hasError = true;
+      }
+      if (squareBracketOpenCount < squareBracketCloseCount) {
+        document.getElementById(warningSquareBracketCloseElementId).hidden = false;
+        hasError = true;
+      }
+
+      if (hasError == false) {
+        // ambiguous ANDs and ORs
+        var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
+        if (ambiguousAndLen > 0) {
+          $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
+          $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
+          $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
+          $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
+          $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
+          $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
+          $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
+          $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
+          document.getElementById(warningAmbiguousAndElementId).hidden = false;
+          hasError = true;
+        }
+      }
+
+    }
+
+
+  </script>
+
+  <script>
+    // LZString is under MIT License from https://github.com/pieroxy Copyright (c) 2013 pieroxy
+    var LZString = function () { var r = String.fromCharCode, o = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", n = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$", e = {}; function t(r, o) { if (!e[r]) { e[r] = {}; for (var n = 0; n < r.length; n++)e[r][r.charAt(n)] = n } return e[r][o] } var i = { compressToBase64: function (r) { if (null == r) return ""; var n = i._compress(r, 6, function (r) { return o.charAt(r) }); switch (n.length % 4) { default: case 0: return n; case 1: return n + "==="; case 2: return n + "=="; case 3: return n + "=" } }, decompressFromBase64: function (r) { return null == r ? "" : "" == r ? null : i._decompress(r.length, 32, function (n) { return t(o, r.charAt(n)) }) }, compressToUTF16: function (o) { return null == o ? "" : i._compress(o, 15, function (o) { return r(o + 32) }) + " " }, decompressFromUTF16: function (r) { return null == r ? "" : "" == r ? null : i._decompress(r.length, 16384, function (o) { return r.charCodeAt(o) - 32 }) }, compressToUint8Array: function (r) { for (var o = i.compress(r), n = new Uint8Array(2 * o.length), e = 0, t = o.length; e < t; e++) { var s = o.charCodeAt(e); n[2 * e] = s >>> 8, n[2 * e + 1] = s % 256 } return n }, decompressFromUint8Array: function (o) { if (null == o) return i.decompress(o); for (var n = new Array(o.length / 2), e = 0, t = n.length; e < t; e++)n[e] = 256 * o[2 * e] + o[2 * e + 1]; var s = []; return n.forEach(function (o) { s.push(r(o)) }), i.decompress(s.join("")) }, compressToEncodedURIComponent: function (r) { return null == r ? "" : i._compress(r, 6, function (r) { return n.charAt(r) }) }, decompressFromEncodedURIComponent: function (r) { return null == r ? "" : "" == r ? null : (r = r.replace(/ /g, "+"), i._decompress(r.length, 32, function (o) { return t(n, r.charAt(o)) })) }, compress: function (o) { return i._compress(o, 16, function (o) { return r(o) }) }, _compress: function (r, o, n) { if (null == r) return ""; var e, t, i, s = {}, u = {}, a = "", p = "", c = "", l = 2, f = 3, h = 2, d = [], m = 0, v = 0; for (i = 0; i < r.length; i += 1)if (a = r.charAt(i), Object.prototype.hasOwnProperty.call(s, a) || (s[a] = f++, u[a] = !0), p = c + a, Object.prototype.hasOwnProperty.call(s, p)) c = p; else { if (Object.prototype.hasOwnProperty.call(u, c)) { if (c.charCodeAt(0) < 256) { for (e = 0; e < h; e++)m <<= 1, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++; for (t = c.charCodeAt(0), e = 0; e < 8; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } else { for (t = 1, e = 0; e < h; e++)m = m << 1 | t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t = 0; for (t = c.charCodeAt(0), e = 0; e < 16; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } 0 == --l && (l = Math.pow(2, h), h++), delete u[c] } else for (t = s[c], e = 0; e < h; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1; 0 == --l && (l = Math.pow(2, h), h++), s[p] = f++, c = String(a) } if ("" !== c) { if (Object.prototype.hasOwnProperty.call(u, c)) { if (c.charCodeAt(0) < 256) { for (e = 0; e < h; e++)m <<= 1, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++; for (t = c.charCodeAt(0), e = 0; e < 8; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } else { for (t = 1, e = 0; e < h; e++)m = m << 1 | t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t = 0; for (t = c.charCodeAt(0), e = 0; e < 16; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } 0 == --l && (l = Math.pow(2, h), h++), delete u[c] } else for (t = s[c], e = 0; e < h; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1; 0 == --l && (l = Math.pow(2, h), h++) } for (t = 2, e = 0; e < h; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1; for (; ;) { if (m <<= 1, v == o - 1) { d.push(n(m)); break } v++ } return d.join("") }, decompress: function (r) { return null == r ? "" : "" == r ? null : i._decompress(r.length, 32768, function (o) { return r.charCodeAt(o) }) }, _decompress: function (o, n, e) { var t, i, s, u, a, p, c, l = [], f = 4, h = 4, d = 3, m = "", v = [], g = { val: e(0), position: n, index: 1 }; for (t = 0; t < 3; t += 1)l[t] = t; for (s = 0, a = Math.pow(2, 2), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; switch (s) { case 0: for (s = 0, a = Math.pow(2, 8), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; c = r(s); break; case 1: for (s = 0, a = Math.pow(2, 16), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; c = r(s); break; case 2: return "" }for (l[3] = c, i = c, v.push(c); ;) { if (g.index > o) return ""; for (s = 0, a = Math.pow(2, d), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; switch (c = s) { case 0: for (s = 0, a = Math.pow(2, 8), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; l[h++] = r(s), c = h - 1, f--; break; case 1: for (s = 0, a = Math.pow(2, 16), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; l[h++] = r(s), c = h - 1, f--; break; case 2: return v.join("") }if (0 == f && (f = Math.pow(2, d), d++), l[c]) m = l[c]; else { if (c !== h) return null; m = i + i.charAt(0) } v.push(m), l[h++] = i + m.charAt(0), i = m, 0 == --f && (f = Math.pow(2, d), d++) } } }; return i }(); "function" == typeof define && define.amd ? define(function () { return LZString }) : "undefined" != typeof module && null != module ? module.exports = LZString : "undefined" != typeof angular && null != angular && angular.module("LZString", []).factory("LZString", function () { return LZString });
+  </script>
+
+  <style>
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      background-color: lightgrey;
+      font: icon;
+    }
+
+    #demo2 {
+      padding: 5px;
+      background-color: lightslategray;
+      font: message-box;
+    }
+
+    #demo-button {
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+    .query-input {
+      padding: 5px;
+      font: message-box;
+    }
+
+    #medsyntax div {
+      color: black;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+
+    #medsyntax div.term {
+      /* color: red; */
+      border-bottom-style: dashed;
+      border-bottom-color: lightgray;
+      margin-left: 5px;
+    }
+
+    #medsyntax div.search-string {
+      background-color: white;
+      padding: 15px;
+      padding-top: 20px;
+      border-radius: 5px;
+      display: inline-block;
+      font: icon;
+    }
+
+    #medsyntax-target div.quote-term,
+    #medsyntax-target1 div.quote-term,
+    #medsyntax-target2 div.quote-term,
+    #medsyntax-target3 div.quote-term,
+    #medsyntax-target4 div.quote-term {
+      margin-bottom: 3px;
+      background: lightgray;
+    }
+
+    #medsyntax-target div.boolean,
+    #medsyntax-target1 div.boolean,
+    #medsyntax-target2 div.boolean,
+    #medsyntax-target3 div.boolean,
+    #medsyntax-target4 div.boolean {
+      color: darkblue;
+      margin-left: 5px;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+
+    #medsyntax-target div.brackets,
+    #medsyntax-target1 div.brackets,
+    #medsyntax-target2 div.brackets,
+    #medsyntax-target3 div.brackets,
+    #medsyntax-target4 div.brackets {
+      padding: 3px;
+      border-width: 3px;
+      border-radius: 5px;
+      border: darkorange;
+      border-style: solid;
+      margin-left: 3px;
+      margin-right: 3px;
+      margin-bottom: 3px;
+      filter: hue-rotate(110deg);
+    }
+
+    #medsyntax-target div.square-brackets,
+    #medsyntax-target1 div.square-brackets,
+    #medsyntax-target2 div.square-brackets,
+    #medsyntax-target3 div.square-brackets,
+    #medsyntax-target4 div.square-brackets {
+      color: rgb(111, 111, 111);
+      margin-right: 2px;
+    }
+
+    #medsyntax-target div.near,
+    #medsyntax-target1 div.near,
+    #medsyntax-target2 div.near,
+    #medsyntax-target3 div.near,
+    #medsyntax-target4 div.near {
+      margin-left: 5px;
+      color: rgb(111, 111, 111);
+      font-weight: bold;
+    }
+
+    #medsyntax-target div.embase,
+    #medsyntax-target1 div.embase,
+    #medsyntax-target2 div.embase,
+    #medsyntax-target3 div.embase,
+    #medsyntax-target4 div.embase {
+      color: rgb(111, 111, 111);
+    }
+
+    #medsyntax-target div.pubmed,
+    #medsyntax-target1 div.pubmed,
+    #medsyntax-target2 div.pubmed,
+    #medsyntax-target3 div.pubmed,
+    #medsyntax-target4 div.pubmed {
+      color: rgb(111, 111, 111);
+      margin-right: 3px;
+      margin-left: 3px;
+    }
+
+    p.warning-medsyntax {
+      background-color: lightcoral;
+    }
+
+    h3 {
+      color: black;
+      background-color: lightgrey;
+      padding: 5px;
+      border-width: 5px;
+      border-radius: 5px;
+      border-color: darkgray;
+    }
+
+    p {
+      padding: 5px;
+    }
+  </style>
+
+  <!-- source: w3schools -->
+  <style>
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 140px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 150%;
+      left: 50%;
+      margin-left: -75px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</body>
+
+</html>
