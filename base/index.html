@@ -190,7 +190,8 @@
 
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
     var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi'); //TODO
-
+    var termStrayRe = new RegExp('(\\/div>([1-9]{1,}?)\\w+<div)');
+    var termStrayExtraRe = new RegExp('(\\/div>([1-9]{1,}?)(.{1,}?)<div)');
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
@@ -304,6 +305,8 @@
         strOld = str;
         // console.log(strOld);
         str = str.replace(termRe, function (x) { return termReFunction(x); }); //make stray words elements
+        str = str.replace(termStrayRe, function (x) { return termReFunction(x); }); //make stray words elements
+        str = str.replace(termStrayExtraRe, function (x) { return termReFunction(x); }); //make stray words elements
         // console.log(str);
       }
 
@@ -354,28 +357,14 @@
         }
       }
 
-      // $('div.brackets').mouseout(function (event) {
-      //   $(this).removeClass('hover');
-      //   // console.log('mouseout: ' + this.innerText);
-      //   event.stopPropagation();
-      //   return false;
-      // });
-
-      // $('div.brackets').mousemove(function (event) {
-      //   $(this).addClass('hover');
-      //   // console.log('mousemove: ' + this.innerText);
-      //   event.stopPropagation();
-      //   return false;
-      // });
-
       var elementForHover;
 
       $('.medsyntax-target div').mousemove(function (event) {
         if (elementForHover != this) {
           $('.medsyntax-target div').removeClass('hover');
           console.log(this.innerText);
-          var text = $(this).nextUntil('.brackets, .bracket-close, .bracket-open')
-            .prevUntil('.brackets, .bracket-close, .bracket-open').addClass('hover');
+          var text = $(this).nextUntil('.brackets, bracket-close').next()
+            .prevUntil('.brackets').addClass('hover');
           console.log('mousemove: ' + text.value);
           elementForHover = this;
         }
