@@ -370,10 +370,12 @@
             $(this).addClass('hover');
             var selectionForHover = $(this);
             console.log(this.innerText);
-            if ($(this).hasClass('brackets') != true) {
-              selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
-            } else {
+            if ($(this).hasClass('brackets')) {
               selectionForHover = $(this).addClass('hover');
+            } else if ($(this).hasClass('bracket-open')) {
+              selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+            } else {
+              selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
             }
             console.log(selectionForHover.innerText);
             elementForHover = this;
