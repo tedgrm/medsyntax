@@ -93,7 +93,7 @@
 
     function textAreaAdjust(element) {
       element.style.height = "1px";
-      element.style.width = ($("#search-string").width()) + "px";
+      element.style.width = ($("#search-string").width() - 48) + "px";
       element.style.height = (12 + element.scrollHeight) + "px";
     }
 
@@ -429,6 +429,7 @@
                 hoverMouseDown();
               });
 
+              $(this).off('mousedown');
               $(this).addClass('hover');
               $(this).mousedown(function (event) {
                 console.log('not yet hover mouse down');
@@ -451,24 +452,26 @@
   <script>
     // Start edit on mouse down method
     function hoverMouseDown() {
-      setTimeout(() => {
-        var text = $(".hover").text();
-        console.log(text);
-        $(".hover").wrapAll("<div class='newInputTarget' />");
-        $(".medsyntax-target .newInputTarget")
-          .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
+      $('.medsyntax-target div').off('mousemove');
 
-        $("#dynamic-input").val(text);
-        $('.medsyntax-target div').off('mousemove');
+      var text = $(".hover").text();
+      console.log(text);
+      $(".hover").wrapAll("<div class='newInputTarget' />");
+      $(".medsyntax-target .newInputTarget")
+        .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
+      console.log(text);
 
-        var input = document.getElementById("dynamic-input");
-        input.addEventListener("keyup", function () {
-          textAreaAdjust(this);
-        });
-        textAreaAdjust(input);
+      // setTimeout(() => {
+      $("#dynamic-input").val(text);
 
-        // console.log("Hello");
-      }, 500);
+      var input = document.getElementById("dynamic-input");
+      input.addEventListener("keyup", function () {
+        textAreaAdjust(this);
+      });
+      textAreaAdjust(input);
+
+      // console.log("Hello");
+      // }, 500);
     }
 
   </script>
