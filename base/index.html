@@ -60,15 +60,14 @@
   <button id="download-button" onclick="downloadFunction()">Download</button>
 
   <script>
-    $(document).on('click', 'body *', function () {
-      console.log($(this));
-      //  $(this) = your current element that clicked.
-      if($(this).hasClass('dynamic-input') != true){
-        console.log("test");
-      }
-    });
-
     $(document).ready(function () {
+      $(document).click(function (event) {
+        var $target = $(event.target);
+        if (!$target.closest('#dynamic-input').length &&
+          $('#dynamic-input').is(":visible")) {
+          syntaxCheck("query-input1", "medsyntax-target1");
+        }
+      });
 
       hideWarnings();
 
@@ -93,7 +92,6 @@
       updateTitle("query-title1");
 
       $('.medsyntax-target .search-string').mouseleave(function (event) {
-        // console.log('mouseleave');
         $(this).removeClass('hover');
       });
 
@@ -435,7 +433,7 @@
               $(this).off('mousedown');
               $(this).addClass('hover');
               $(this).mousedown(function (event) {
-                console.log('not yet hover mouse down');
+                // console.log('not yet hover mouse down');
                 hoverMouseDown();
               });
             }
@@ -481,9 +479,9 @@
     }
 
     function onEnterDynamicInput() {
-      console.log($("#search-string .dynamic-input").val());
+      // console.log($("#search-string .dynamic-input").val());
       $("#search-string .dynamic-input").replaceWith('<div id="entered-text">' + $("#search-string .dynamic-input").val() + '</div>');
-      console.log($("#search-string").text());
+      // console.log($("#search-string").text());
       $("#query-input1").val($("#search-string").text());
       syntaxCheck("query-input1", "medsyntax-target1");
     }
