@@ -361,14 +361,20 @@
         if (elementForHover != this) {
           if ($(this).hasClass('hover')) {
             console.log('has hover');
-          } else if ($(this).hasClass('brackets') != true) {
+          } else {
+            if ($(this).parent().hasClass('square-brackets')) {
+              $(this) = $(this).parent();
+            }
+
             $('.medsyntax-target div').removeClass('hover');
             $(this).addClass('hover');
+            var selectionForHover = $(this);
             console.log(this.innerText);
-            // var selectionForHover = $(this).prev().nextUntil('.brackets').next()
-            //   .prevUntil('.brackets').addBack().addClass('hover');
-            // var selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addClass('hover');
-            var selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
+            if ($(this).hasClass('brackets') != true) {
+              selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
+            } else {
+              selectionForHover = $(this).addClass('hover');
+            }
             console.log(selectionForHover.innerText);
             elementForHover = this;
           }
