@@ -60,7 +60,16 @@
   <button id="download-button" onclick="downloadFunction()">Download</button>
 
   <script>
+    $(document).on('click', 'body *', function () {
+      console.log($(this));
+      //  $(this) = your current element that clicked.
+      if($(this).hasClass('dynamic-input') != true){
+        console.log("test");
+      }
+    });
+
     $(document).ready(function () {
+
       hideWarnings();
 
       var input = document.getElementById("query-input1");
@@ -568,6 +577,7 @@
       border-radius: 5px;
       display: inline-block;
       font: icon;
+      margin-right: 15px;
     }
 
     .medsyntax-target div.quote-term {
