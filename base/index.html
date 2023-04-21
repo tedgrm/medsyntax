@@ -94,6 +94,7 @@
     function textAreaAdjust(element) {
       element.style.height = "1px";
       element.style.width = ($("#search-string").width() - 48) + "px";
+      // element.style.width = ($(body).width() - 48) + "px";
       element.style.height = (12 + element.scrollHeight) + "px";
     }
 
@@ -450,23 +451,36 @@
       var text = $(".hover").text();
       $(".hover").wrapAll("<div class='newInputTarget' />");
       $(".medsyntax-target .newInputTarget")
-        .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onkeydown="onKeyDynamicInput()"/>');
+        .replaceWith('<textarea id="dynamic-input" class="dynamic-input"/>');
 
-      // setTimeout(() => {
       $("#dynamic-input").val(text);
+      $("#dynamic-input").on('keydown', function (e) {
+        if (e.key == 'Enter') {
+          onEnterDynamicInput();
+        }
+      });
+
+      $("#dynamic-input").on('focusout', function (e) {
+        onFocusoutDynamicInput();
+      });
 
       var input = document.getElementById("dynamic-input");
       input.addEventListener("keyup", function () {
         textAreaAdjust(this);
       });
       textAreaAdjust(input);
-
-      // console.log("Hello");
-      // }, 500);
     }
 
-    function onKeyDynamicInput() {
-      console.log("ssfgfsg");
+    function onEnterDynamicInput() {
+      console.log($("#search-string .dynamic-input").val());
+      $("#search-string .dynamic-input").replaceWith('<div id="entered-text">' + $("#search-string .dynamic-input").val() + '</div>');
+      console.log($("#search-string").text());
+      $("#query-input1").val($("#search-string").text());
+      syntaxCheck("query-input1", "medsyntax-target1");
+    }
+
+    function onFocusoutDynamicInput() {
+      syntaxCheck("query-input1", "medsyntax-target1");
     }
   </script>
 
