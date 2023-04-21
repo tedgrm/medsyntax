@@ -75,6 +75,13 @@
       let queryTitle = LZString.decompressFromEncodedURIComponent(param2)
       document.title = 'Medsyntax: ' + queryTitle;
       $("#query-title1").val(queryTitle);
+
+
+
+      $('.medsyntax-target .search-string').mouseleave(function (event) {
+        // console.log('mouseleave');
+        $(this).removeClass('hover');
+      });
     });
 
     function copyQueryFunction() {
