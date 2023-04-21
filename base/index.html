@@ -63,6 +63,11 @@
     $(document).ready(function () {
       hideWarnings();
 
+      var input = document.getElementById("query-input1");
+      input.addEventListener("keyup", function () {
+        textAreaAdjust(this);
+      });
+
       if (location.search.length > 1) {
         let param1 = getParameterByName('query');
         $("#query-input1").val(LZString.decompressFromEncodedURIComponent(param1));
@@ -83,8 +88,13 @@
         $(this).removeClass('hover');
       });
 
-
+      textAreaAdjust(input);
     });
+
+    function textAreaAdjust(element) {
+      element.style.height = "1px";
+      element.style.height = (25 + element.scrollHeight) + "px";
+    }
 
     function copyQueryFunction() {
       var copyText = document.getElementById("myQueryInput");
@@ -214,7 +224,7 @@
     var special = "___";
 
     function nearOpFunction(x) {
-      console.log("Near:   " + x);
+      // console.log("Near:   " + x);
       x = "<div class=near>" + x + " " + "</div>";
       x = x.replace(new RegExp('/', 'gi'), specialSlash);
       // console.log(x);
@@ -278,7 +288,7 @@
       hideWarnings();
       var hasError = false;
 
-      console.log(str);
+      // console.log(str);
 
       // double quote check
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
@@ -384,7 +394,9 @@
             // console.log('has hover');
           } else {
             if ($(this).parent().hasClass('square-brackets')) {
-              $(this) = $(this).parent();
+              // console.log('square-brackets');
+              event.stopPropagation();
+              return false;
             }
 
             $('.medsyntax-target div').removeClass('hover');
@@ -394,10 +406,14 @@
             // console.log(this.innerText);
             if ($(this).hasClass('brackets')) {
               selectionForHover = $(this).addClass('hover');
+              // console.log('brackets');
             } else if ($(this).hasClass('bracket-open')) {
+              // console.log('bracket-open');
               selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             } else {
+              // console.log('else');
               selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
+              selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             }
             // console.log(selectionForHover.innerText);
             elementForHover = this;
@@ -420,21 +436,31 @@
 
     }
 
+  </script>
+
+  <script>
     // Start edit on mouse down method
     function hoverMouseDown() {
       // var text = "";
       // selectionForHover.forEach(element => console.log(element));
       var text = $(".hover").text();
-      console.log(text);
+      // console.log(text);
       $(".hover").wrapAll("<div class='newInputTarget' />");
       $(".medsyntax-target .newInputTarget")
-        .replaceWith('<textarea id="dynamicInput" class="dynamicInput" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
+        .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
 
-      setTimeout(() => {
-        $("#dynamicInput").val(text);
-        $('.medsyntax-target div').off('mousemove');
-        console.log("Hello");
-      }, 500);
+      // setTimeout(() => {
+      $("#dynamic-input").val(text);
+      $('.medsyntax-target div').off('mousemove');
+
+      var input = document.getElementById("dynamic-input");
+      input.addEventListener("keyup", function () {
+        textAreaAdjust(this);
+      });
+      textAreaAdjust(input);
+
+      // console.log("Hello");
+      // }, 500);
     }
 
   </script>
@@ -447,6 +473,10 @@
   <style>
     [hidden] {
       display: none !important;
+    }
+
+    #dynamic-input {
+      display: block;
     }
 
     .medsyntax div.hover,
