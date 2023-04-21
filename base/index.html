@@ -11,7 +11,8 @@
   <input type="text" id="query-title1" name="query-title1" size="100" onkeyup='updateTitle("query-title1")'>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
-    onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onclick='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
+    onkeyup='syntaxCheck("query-input1","medsyntax-target1")'
+    onclick='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
   <button onclick="clearButtonFunc()">
     Click here to clear
   </button>
@@ -380,7 +381,7 @@
 
         if (elementForHover != this) {
           if ($(this).hasClass('hover')) {
-            console.log('has hover');
+            // console.log('has hover');
           } else {
             if ($(this).parent().hasClass('square-brackets')) {
               $(this) = $(this).parent();
@@ -390,7 +391,7 @@
             $('.medsyntax-target div').off('mousedown');
 
             var selectionForHover = $(this);
-            console.log(this.innerText);
+            // console.log(this.innerText);
             if ($(this).hasClass('brackets')) {
               selectionForHover = $(this).addClass('hover');
             } else if ($(this).hasClass('bracket-open')) {
@@ -398,10 +399,10 @@
             } else {
               selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
             }
-            console.log(selectionForHover.innerText);
+            // console.log(selectionForHover.innerText);
             elementForHover = this;
             selectionForHover.mousedown(function (event) {
-              hoverMouseDown(selectionForHover);
+              hoverMouseDown();
             });
 
             if ($(this).hasClass('hover') != true) {
@@ -419,9 +420,21 @@
 
     }
 
-    function hoverMouseDown(selectionForHover) {
-      selectionForHover.wrapAll("<div class='newInputTarget' />");
-      $(".medsyntax-target .newInputTarget").replaceWith('<h2 onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()">New heading</h2>');
+    // Start edit on mouse down method
+    function hoverMouseDown() {
+      // var text = "";
+      // selectionForHover.forEach(element => console.log(element));
+      var text = $(".hover").text();
+      console.log(text);
+      $(".hover").wrapAll("<div class='newInputTarget' />");
+      $(".medsyntax-target .newInputTarget")
+        .replaceWith('<textarea id="dynamicInput" class="dynamicInput" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
+
+      setTimeout(() => {
+        $("#dynamicInput").val(text);
+        $('.medsyntax-target div').off('mousemove');
+        console.log("Hello");
+      }, 500);
     }
 
   </script>
