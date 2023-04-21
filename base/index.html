@@ -455,11 +455,9 @@
       $('.medsyntax-target div').off('mousemove');
 
       var text = $(".hover").text();
-      console.log(text);
       $(".hover").wrapAll("<div class='newInputTarget' />");
       $(".medsyntax-target .newInputTarget")
         .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
-      console.log(text);
 
       // setTimeout(() => {
       $("#dynamic-input").val(text);
