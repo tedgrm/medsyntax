@@ -414,20 +414,29 @@
             } else {
               // console.log('else');
               selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
-              selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+              // selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             }
             // console.log(selectionForHover.innerText);
-            elementForHover = this;
             selectionForHover.mousedown(function (event) {
               hoverMouseDown();
             });
 
             if ($(this).hasClass('hover') != true) {
+              console.log('not yet hover');
+
+              selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+              selectionForHover.mousedown(function (event) {
+                hoverMouseDown();
+              });
+
               $(this).addClass('hover');
               $(this).mousedown(function (event) {
-                hoverMouseDown($(this));
+                console.log('not yet hover mouse down');
+                hoverMouseDown();
               });
             }
+
+            elementForHover = this;
           }
         }
 
@@ -442,26 +451,24 @@
   <script>
     // Start edit on mouse down method
     function hoverMouseDown() {
-      // var text = "";
-      // selectionForHover.forEach(element => console.log(element));
-      var text = $(".hover").text();
-      // console.log(text);
-      $(".hover").wrapAll("<div class='newInputTarget' />");
-      $(".medsyntax-target .newInputTarget")
-        .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
+      setTimeout(() => {
+        var text = $(".hover").text();
+        console.log(text);
+        $(".hover").wrapAll("<div class='newInputTarget' />");
+        $(".medsyntax-target .newInputTarget")
+          .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
 
-      // setTimeout(() => {
-      $("#dynamic-input").val(text);
-      $('.medsyntax-target div').off('mousemove');
+        $("#dynamic-input").val(text);
+        $('.medsyntax-target div').off('mousemove');
 
-      var input = document.getElementById("dynamic-input");
-      input.addEventListener("keyup", function () {
-        textAreaAdjust(this);
-      });
-      textAreaAdjust(input);
+        var input = document.getElementById("dynamic-input");
+        input.addEventListener("keyup", function () {
+          textAreaAdjust(this);
+        });
+        textAreaAdjust(input);
 
-      // console.log("Hello");
-      // }, 500);
+        // console.log("Hello");
+      }, 500);
     }
 
   </script>
@@ -634,7 +641,7 @@
       padding: 5px;
     }
 
-    .search-string {
+    .dynamic-input {
       font-size: medium;
     }
   </style>
