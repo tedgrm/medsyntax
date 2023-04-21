@@ -93,6 +93,7 @@
 
     function textAreaAdjust(element) {
       element.style.height = "1px";
+      element.style.width = ($("#search-string").width()) + "px";
       element.style.height = (25 + element.scrollHeight) + "px";
     }
 
@@ -327,7 +328,7 @@
       str = str.replace('class=quote-term', 'class=\"quote-term\"'); //un-special-fy quote
 
       // make stray words elements
-      str = "<div class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
+      str = "<div id=\"search-string\" class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
       strOld = "";
       while (str != strOld) {
         strOld = str;
@@ -631,6 +632,10 @@
 
     p {
       padding: 5px;
+    }
+
+    .search-string {
+      font-size: medium;
     }
   </style>
 
