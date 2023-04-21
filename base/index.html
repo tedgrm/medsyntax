@@ -8,10 +8,10 @@
 </head>
 
 <body>
-  <input type="text" id="query-title1" name="query-title1" size="100" onkeyup='updateTitle("query-title1")'>
+  <input type="text" id="query-title1" name="query-title1" size="100" onkeydown='updateTitle("query-title1")'>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
-    onkeyup='syntaxCheck("query-input1","medsyntax-target1")'
+    onkeydown='syntaxCheck("query-input1","medsyntax-target1")'
     onclick='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
   <button onclick="clearButtonFunc()">
     Click here to clear
@@ -404,26 +404,19 @@
             $('.medsyntax-target div').off('mousedown');
 
             var selectionForHover = $(this);
-            // console.log(this.innerText);
             if ($(this).hasClass('brackets')) {
               selectionForHover = $(this).addClass('hover');
-              // console.log('brackets');
             } else if ($(this).hasClass('bracket-open')) {
-              // console.log('bracket-open');
               selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             } else {
-              // console.log('else');
               selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
               // selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             }
-            // console.log(selectionForHover.innerText);
             selectionForHover.mousedown(function (event) {
               hoverMouseDown();
             });
 
             if ($(this).hasClass('hover') != true) {
-              console.log('not yet hover');
-
               selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
               selectionForHover.mousedown(function (event) {
                 hoverMouseDown();
@@ -457,7 +450,7 @@
       var text = $(".hover").text();
       $(".hover").wrapAll("<div class='newInputTarget' />");
       $(".medsyntax-target .newInputTarget")
-        .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()"/>');
+        .replaceWith('<textarea id="dynamic-input" class="dynamic-input" onkeydown="onKeyDynamicInput()"/>');
 
       // setTimeout(() => {
       $("#dynamic-input").val(text);
@@ -472,6 +465,9 @@
       // }, 500);
     }
 
+    function onKeyDynamicInput() {
+      console.log("ssfgfsg");
+    }
   </script>
 
   <script>
