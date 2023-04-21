@@ -266,6 +266,8 @@
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
       str = str.replace('  ', ' ');
+      str = str.replace(/[“]|[”]|[″]|[‶]/g, '"');
+      str = str.replace(/[‘]|[’]|[′]|[‵]/g, '\'');
       updateUrl('query', LZString.compressToEncodedURIComponent(str));
 
       document.getElementById("demo-button").hidden = true; // move somewhere else
@@ -275,7 +277,14 @@
 
       console.log(str);
 
+      // double quote check
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
+      if (quotesCount % 2 != 0) {
+        document.getElementById(warningQuotesElementId).hidden = false;
+        hasError = true;
+      }
+      // single quote check
+      quotesCount = (str.match(new RegExp('(\\\')', 'gi')) || []).length;
       if (quotesCount % 2 != 0) {
         document.getElementById(warningQuotesElementId).hidden = false;
         hasError = true;
@@ -379,6 +388,10 @@
             $('.medsyntax-target div').off('mousedown');
 
             $(this).addClass('hover');
+            $(this).mousedown(function (event) {
+              hoverMouseDown($(this));
+            });
+
             var selectionForHover = $(this);
             console.log(this.innerText);
             if ($(this).hasClass('brackets')) {
@@ -390,14 +403,10 @@
             }
             console.log(selectionForHover.innerText);
             elementForHover = this;
-
-
             selectionForHover.mousedown(function (event) {
-              // selectionForHover.replaceWith("<h2>New heading</h2>");
-
-              selectionForHover.wrapAll("<div class='newInputTarget' />");
-              $(".medsyntax-target .newInputTarget").replaceWith('<h2 onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()">New heading</h2>');
+              hoverMouseDown(selectionForHover);
             });
+
           }
 
           // $('.medsyntax-target .hoover').click(function (event) {
@@ -412,6 +421,10 @@
 
     }
 
+    function hoverMouseDown(selectionForHover) {
+      selectionForHover.wrapAll("<div class='newInputTarget' />");
+      $(".medsyntax-target .newInputTarget").replaceWith('<h2 onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()">New heading</h2>');
+    }
 
   </script>
 
