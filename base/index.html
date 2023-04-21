@@ -396,7 +396,7 @@
               // selectionForHover.replaceWith("<h2>New heading</h2>");
 
               selectionForHover.wrapAll("<div class='newInputTarget' />");
-              $(".medsyntax-target .newInputTarget").replaceWith("<h2>New heading</h2>");
+              $(".medsyntax-target .newInputTarget").replaceWith('<h2 onEscToetsIndrukken="onCancelDynamicInput()" onEnterToetsIndrukken="onEnterDynamicInput()">New heading</h2>');
             });
           }
 
