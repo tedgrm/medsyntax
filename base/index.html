@@ -366,6 +366,7 @@
 
       var elementForHover;
       $('.medsyntax-target div').mousemove(function (event) {
+
         if (elementForHover != this) {
           if ($(this).hasClass('hover')) {
             console.log('has hover');
@@ -375,6 +376,8 @@
             }
 
             $('.medsyntax-target div').removeClass('hover');
+            $('.medsyntax-target div').off('mousedown');
+
             $(this).addClass('hover');
             var selectionForHover = $(this);
             console.log(this.innerText);
@@ -389,8 +392,20 @@
             elementForHover = this;
 
 
+            selectionForHover.mousedown(function (event) {
+              // selectionForHover.replaceWith("<h2>New heading</h2>");
+
+              selectionForHover.wrapAll("<div class='newInputTarget' />");
+              $(".medsyntax-target .newInputTarget").replaceWith("<h2>New heading</h2>");
+            });
           }
+
+          // $('.medsyntax-target .hoover').click(function (event) {
+          //   $(".medsyntax-target .hoover").wrapAll("<div class='new' />");
+          //   $(".medsyntax-target .new").replaceWith("<h2>New heading</h2>");
+          // });
         }
+
         event.stopPropagation();
         return false;
       });
