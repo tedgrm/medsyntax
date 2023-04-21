@@ -188,7 +188,7 @@
     //*** Syntax highlighter code ***//
 
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
-    var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi'); //TODO
+    var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi');
     var termStrayRe = new RegExp('(\\/div>([1-9]{1,}?)\\w+<div)');
     var termStrayExtraRe = new RegExp('(\\/div>([1-9]{1,}?)(.{1,}?)<div)');
     var andRe = new RegExp('( AND | and )', 'gi');
@@ -357,15 +357,21 @@
       }
 
       var elementForHover;
-
       $('.medsyntax-target div').mousemove(function (event) {
         if (elementForHover != this) {
-          $('.medsyntax-target div').removeClass('hover');
-          console.log(this.innerText);
-          var text = $(this).nextUntil('.brackets, bracket-close').next()
-            .prevUntil('.brackets').addClass('hover');
-          console.log('mousemove: ' + text.value);
-          elementForHover = this;
+          if ($(this).hasClass('hover')) {
+            console.log('has hover');
+          } else if ($(this).hasClass('brackets') != true) {
+            $('.medsyntax-target div').removeClass('hover');
+            $(this).addClass('hover');
+            console.log(this.innerText);
+            // var selectionForHover = $(this).prev().nextUntil('.brackets').next()
+            //   .prevUntil('.brackets').addBack().addClass('hover');
+            // var selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addClass('hover');
+            var selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
+            console.log(selectionForHover.innerText);
+            elementForHover = this;
+          }
         }
         event.stopPropagation();
         return false;
