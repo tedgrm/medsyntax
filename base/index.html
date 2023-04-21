@@ -387,11 +387,6 @@
             $('.medsyntax-target div').removeClass('hover');
             $('.medsyntax-target div').off('mousedown');
 
-            $(this).addClass('hover');
-            $(this).mousedown(function (event) {
-              hoverMouseDown($(this));
-            });
-
             var selectionForHover = $(this);
             console.log(this.innerText);
             if ($(this).hasClass('brackets')) {
@@ -407,6 +402,12 @@
               hoverMouseDown(selectionForHover);
             });
 
+            if ($(this).hasClass('hover') != true) {
+              $(this).addClass('hover');
+              $(this).mousedown(function (event) {
+                hoverMouseDown($(this));
+              });
+            }
           }
         }
 
