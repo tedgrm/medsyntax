@@ -75,8 +75,7 @@
       let queryTitle = LZString.decompressFromEncodedURIComponent(param2)
       document.title = 'Medsyntax: ' + queryTitle;
       $("#query-title1").val(queryTitle);
-
-
+      updateTitle("query-title1");
 
       $('.medsyntax-target .search-string').mouseleave(function (event) {
         // console.log('mouseleave');
@@ -137,8 +136,8 @@
       queryParams.set(name, value);
 
       // Replace current querystring with the new one
-      history.replaceState(null, 'ietd', "?" + queryParams.toString());
-      history.pushState(null, 'iets', "?" + queryParams.toString());
+      history.replaceState(null, null, "?" + queryParams.toString());
+      history.pushState(null, null, "?" + queryParams.toString());
     }
 
     function demoClickFunction() {
@@ -198,6 +197,7 @@
     var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi');
     var termStrayRe = new RegExp('(\\/div>([1-9]{1,}?)\\w+<div)');
     var termStrayExtraRe = new RegExp('(\\/div>([1-9]{1,}?)(.{1,}?)<div)');
+    var termStrayNumberRe = new RegExp('(\\/div>([1-9]{1,}?)<div)');
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
@@ -313,6 +313,7 @@
         str = str.replace(termRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayExtraRe, function (x) { return termReFunction(x); }); //make stray words elements
+        str = str.replace(termStrayNumberRe, function (x) { return termReFunction(x); }); //make stray words elements
         // console.log(str);
       }
 
@@ -350,14 +351,14 @@
         // ambiguous ANDs and ORs
         var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
         if (ambiguousAndLen > 0) {
-          $(".brackets .boolean.or").siblings(".and").css("background", "black"); // color AND
-          $(".brackets .boolean.or").siblings(".and").css("color", "white"); // color AND
-          $(".search-string .boolean.or").siblings(".and").css("background", "black"); // color AND
-          $(".search-string .boolean.or").siblings(".and").css("color", "white"); // color AND
-          $(".brackets .boolean.and").siblings(".or").css("background", "black"); // color OR
-          $(".brackets .boolean.and").siblings(".or").css("color", "white"); // color OR
-          $(".search-string .boolean.and").siblings(".or").css("background", "black"); // color OR
-          $(".search-string .boolean.and").siblings(".or").css("color", "white"); // color OR
+          $(".brackets .boolean.or").siblings(".and").addClass("boolean-error");
+          $(".brackets .boolean.or").siblings(".and").addClass("boolean-error");
+          $(".search-string .boolean.or").siblings(".and").addClass("boolean-error");
+          $(".search-string .boolean.or").siblings(".and").addClass("boolean-error");
+          $(".brackets .boolean.and").siblings(".or").addClass("boolean-error");
+          $(".brackets .boolean.and").siblings(".or").addClass("boolean-error");
+          $(".search-string .boolean.and").siblings(".or").addClass("boolean-error");
+          $(".search-string .boolean.and").siblings(".or").addClass("boolean-error");
           document.getElementById(warningAmbiguousAndElementId).hidden = false;
           hasError = true;
         }
@@ -386,6 +387,8 @@
             }
             console.log(selectionForHover.innerText);
             elementForHover = this;
+
+
           }
         }
         event.stopPropagation();
@@ -407,13 +410,16 @@
       display: none !important;
     }
 
-    .medsyntax div .hover,
-    .medsyntax div .hover div,
-    .medsyntax div.term .hover,
+    .medsyntax div.hover,
+    .medsyntax .hover div,
+    .medsyntax-target div.quote-term.hover,
+    .medsyntax-target .hover div.quote-term,
+    .medsyntax div.term.hover,
     .medsyntax .hover div.term {
       background-color: orange;
       background-clip: padding-box;
       border-color: orange;
+      background: orange;
       border-bottom-style: solid;
     }
 
@@ -446,6 +452,18 @@
       /* margin-bottom: 2px; */
       padding-bottom: 2px;
       /* padding-top: 2px; */
+    }
+
+    .medsyntax div.search-string div.boolean-error {
+      color: white;
+      background: black;
+    }
+
+    .medsyntax div.search-string.hover div.boolean-error,
+    .medsyntax div.search-string div.boolean-error.hover,
+    .medsyntax div.search-string .hover div.boolean-error {
+      color: black;
+      background: orange;
     }
 
     .medsyntax .term {
