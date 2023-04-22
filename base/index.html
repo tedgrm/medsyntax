@@ -279,18 +279,14 @@
     function termReFunction(x) {
       x = x.replace("<div", "</div><div");
       x = x.replace("/div>", "/div><div class=\"term\">");
-      // console.log(x);
       return x;
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
-      // console.log(sourceElementId);
-      // console.log(targetElementId);
-
       var str = document.getElementById(sourceElementId).value;
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
-      str = str.replace('  ', ' ');
+      str = str.replace(/  +/g, ' ');
       str = str.replace(/[“]|[”]|[″]|[‶]/g, '"');
       str = str.replace(/[‘]|[’]|[′]|[‵]/g, '\'');
       updateUrl('query', LZString.compressToEncodedURIComponent(str));
@@ -299,8 +295,6 @@
 
       hideWarnings();
       var hasError = false;
-
-      // console.log(str);
 
       // double quote check
       quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
@@ -343,12 +337,10 @@
       strOld = "";
       while (str != strOld) {
         strOld = str;
-        // console.log(strOld);
         str = str.replace(termRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayExtraRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayNumberRe, function (x) { return termReFunction(x); }); //make stray words elements
-        // console.log(str);
       }
 
       //TODO regex toevoegen om laatste strays op te pakken: moet ook vreemde tekens oppakken
@@ -403,10 +395,8 @@
 
         if (elementForHover != this) {
           if ($(this).hasClass('hover')) {
-            // console.log('has hover');
           } else {
             if ($(this).parent().hasClass('square-brackets')) {
-              // console.log('square-brackets');
               event.stopPropagation();
               return false;
             }
@@ -421,7 +411,6 @@
               selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             } else {
               selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
-              // selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
             }
             selectionForHover.mousedown(function (event) {
               hoverMouseDown();
@@ -436,7 +425,6 @@
               $(this).off('mousedown');
               $(this).addClass('hover');
               $(this).mousedown(function (event) {
-                // console.log('not yet hover mouse down');
                 hoverMouseDown();
               });
             }
@@ -482,10 +470,10 @@
     }
 
     function onEnterDynamicInput() {
-      // console.log($("#search-string .dynamic-input").val());
-      $("#search-string .dynamic-input").replaceWith('<div id="entered-text">' + $("#search-string .dynamic-input").val() + '</div>');
-      // console.log($("#search-string").text());
-      $("#query-input1").val($("#search-string").text());
+      $("#search-string .dynamic-input").replaceWith('<div id="entered-text">' + " " + $("#search-string .dynamic-input").val() + " " + '</div>');
+      var enteredText = $("#search-string").text();
+      enteredText = enteredText.replace(/  +/g, ' ');
+      $("#query-input1").val(enteredText);
       syntaxCheck("query-input1", "medsyntax-target1");
     }
 
