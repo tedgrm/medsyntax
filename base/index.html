@@ -360,6 +360,10 @@
         document.getElementById(warningBracketCloseElementId).hidden = false;
         hasError = true;
       }
+      if (str.indexOf("(") > str.indexOf(")")) {
+        document.getElementById(warningBracketCloseElementId).hidden = false;
+        document.getElementById(warningBracketOpenElementId).hidden = false;
+      }
 
       // bracket warnings [ and ]
       squareBracketOpenCount = (str.match(new RegExp('(\\[)', 'gi')) || []).length;
