@@ -11,8 +11,7 @@
   <input type="text" id="query-title1" name="query-title1" size="100" onkeydown='updateTitle("query-title1")'>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
-    onkeyup='syntaxCheck("query-input1","medsyntax-target1")'
-    onchange='syntaxCheck("query-input1","medsyntax-target1")'
+    onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onchange='syntaxCheck("query-input1","medsyntax-target1")'
     onclick='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
   <button onclick="clearButtonFunc()">
     Click here to clear
@@ -453,14 +452,10 @@
         .replaceWith('<textarea id="dynamic-input" class="dynamic-input"/>');
 
       $("#dynamic-input").val(text);
-      $("#dynamic-input").on('keydown', function (e) {
+      $("#dynamic-input").on('keyup', function (e) {
         if (e.key == 'Enter') {
           onEnterDynamicInput();
         }
-      });
-
-      $("#dynamic-input").on('focusout', function (e) {
-        onFocusoutDynamicInput();
       });
 
       var input = document.getElementById("dynamic-input");
@@ -471,8 +466,31 @@
     }
 
     function onEnterDynamicInput() {
-      $("#search-string .dynamic-input").replaceWith('<div id="entered-text">' + " " + $("#search-string .dynamic-input").val() + " " + '</div>');
-      var enteredText = $("#search-string").text();
+      var dyText = $("#dynamic-input").val();
+      $("#dynamic-input").val(dyText.replace(/\n/g, ' '));
+
+      // bracket warnings ( and )
+      bracketOpenCount = (dyText.match(new RegExp('(\\()', 'gi')) || []).length;
+      bracketCloseCount = (dyText.match(new RegExp('(\\))', 'gi')) || []).length;
+      if (bracketOpenCount != bracketCloseCount) {
+        alert("( or ) bracket error: please fix before pressing Enter");
+        return false;
+      }
+
+      // bracket warnings [ and ]
+      squareBracketOpenCount = (dyText.match(new RegExp('(\\[)', 'gi')) || []).length;
+      squareBracketCloseCount = (dyText.match(new RegExp('(\\])', 'gi')) || []).length;
+      if (squareBracketOpenCount != squareBracketCloseCount) {
+        alert("[ or ] bracket error: please fix before pressing Enter");
+        return false;
+      }
+      if (dyText.indexOf("[") > dyText.indexOf("]")) {
+        alert("[ or ] bracket error: please fix before pressing Enter");
+        return false;
+      }
+
+      $("#dynamic-input").replaceWith('<div id="entered-text">' + " " + $("#dynamic-input").val() + " " + '</div>');
+      var enteredText = $("#medsyntax-target1").text();
       enteredText = enteredText.replace(/  +/g, ' ');
       $("#query-input1").val(enteredText);
       syntaxCheck("query-input1", "medsyntax-target1");
