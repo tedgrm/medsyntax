@@ -515,12 +515,12 @@
       display: block;
     }
 
-    .medsyntax div.hover,
-    .medsyntax .hover div,
+    .medsyntax-target div.hover,
+    .medsyntax-target .hover div,
     .medsyntax-target div.quote-term.hover,
     .medsyntax-target .hover div.quote-term,
-    .medsyntax div.term.hover,
-    .medsyntax .hover div.term {
+    .medsyntax-target div.term.hover,
+    .medsyntax-target .hover div.term {
       background-color: orange;
       background-clip: padding-box;
       border-color: orange;
@@ -556,11 +556,14 @@
       border-width: 3px;
     }
 
+    .medsyntax-target div {
+      border-color: white;
+      border-bottom-style: solid;
+    }
+
     .medsyntax div {
       color: black;
       display: inline-block;
-      border-bottom-style: solid;
-      border-color: white;
       /* margin-bottom: 2px; */
       padding-bottom: 2px;
       /* padding-top: 2px; */
