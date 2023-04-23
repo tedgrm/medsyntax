@@ -608,8 +608,20 @@
     }
 
     .medsyntax-target div.quote-term {
-      margin-bottom: 3px;
+      /* margin-bottom: 3px; */
       background: lightgray;
+    }
+
+    .medsyntax-target .quote-term div.bracket-open,
+    .medsyntax-target .quote-term div.bracket-close {
+      border-color: lightgray;
+    }
+
+    .medsyntax-target .hover div.bracket-open,
+    .medsyntax-target .hover div.bracket-close,
+    .medsyntax-target .quote-term div.bracket-open.hover,
+    .medsyntax-target .quote-term div.bracket-close.hover {
+      border-color: var(--color-one-base);
     }
 
     .medsyntax-target div.boolean {
@@ -646,7 +658,8 @@
     .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
     .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
     .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets {
-      border-style: dashed;
+      /* border-style: dashed; */
+      border-style: solid;
       border-width: 2px;
       margin-top: 3px;
     }
