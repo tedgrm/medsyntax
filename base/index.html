@@ -507,6 +507,12 @@
   </script>
 
   <style>
+    :root {
+      --color-one-base: brown;
+      --color-one-light: rgb(158, 99, 99);
+      --color-one-dark: rgb(101, 24, 24);
+    }
+
     [hidden] {
       display: none !important;
     }
@@ -521,11 +527,9 @@
     .medsyntax-target .hover div.quote-term,
     .medsyntax-target div.term.hover,
     .medsyntax-target .hover div.term {
-      background-color: orange;
+      background: var(--color-one-base);
       background-clip: padding-box;
-      border-color: orange;
-      /* background: orange; */
-      background: rgb(255, 208, 120);
+      border-color: var(--color-one-base);
       border-bottom-style: solid;
     }
 
@@ -552,7 +556,7 @@
 
     .dynamic-input {
       font: message-box;
-      background: rgb(255, 241, 212);
+      background: var(--color-one-light);
       border-width: 3px;
     }
 
@@ -578,7 +582,7 @@
     .medsyntax div.search-string div.boolean-error.hover,
     .medsyntax div.search-string .hover div.boolean-error {
       color: black;
-      background: rgb(255, 208, 120);
+      background: var(--color-one-light);
       /* background: orange; */
     }
 
@@ -614,7 +618,7 @@
     .medsyntax-target div.brackets {
       padding: 3px;
       border-radius: 5px;
-      border: darkorange;
+      border: var(--color-one-dark);
       /* border: black; */
       border-style: solid;
       margin-left: 3px;
@@ -646,6 +650,11 @@
     .medsyntax-target div.square-brackets {
       color: rgb(111, 111, 111);
       padding-right: 2px;
+    }
+
+    .medsyntax .medsyntax-target .search-string .square-brackets div {
+      border-bottom-style: none;
+      padding: 0px;
     }
 
     .medsyntax-target div.near {
