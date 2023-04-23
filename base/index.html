@@ -390,52 +390,56 @@
         }
       }
 
-      var elementForHover;
-      $('.medsyntax-target div').mousemove(function (event) {
+      if (squareBracketOpenCount == squareBracketCloseCount
+        && bracketOpenCount == bracketCloseCount
+        && document.getElementById(warningQuotesElementId).hidden) {
+        var elementForHover;
+        $('.medsyntax-target div').mousemove(function (event) {
 
-        if (elementForHover != this) {
-          if ($(this).hasClass('hover')) {
-          } else {
-            if ($(this).parent().hasClass('square-brackets')) {
-              event.stopPropagation();
-              return false;
-            }
-
-            $('.medsyntax-target div').removeClass('hover');
-            $('.medsyntax-target div').off('mousedown');
-
-            var selectionForHover = $(this);
-            if ($(this).hasClass('brackets')) {
-              selectionForHover = $(this).addClass('hover');
-            } else if ($(this).hasClass('bracket-open')) {
-              selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+          if (elementForHover != this) {
+            if ($(this).hasClass('hover')) {
             } else {
-              selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
-            }
-            selectionForHover.mousedown(function (event) {
-              hoverMouseDown();
-            });
+              if ($(this).parent().hasClass('square-brackets')) {
+                event.stopPropagation();
+                return false;
+              }
 
-            if ($(this).hasClass('hover') != true) {
-              selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+              $('.medsyntax-target div').removeClass('hover');
+              $('.medsyntax-target div').off('mousedown');
+
+              var selectionForHover = $(this);
+              if ($(this).hasClass('brackets')) {
+                selectionForHover = $(this).addClass('hover');
+              } else if ($(this).hasClass('bracket-open')) {
+                selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+              } else {
+                selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
+              }
               selectionForHover.mousedown(function (event) {
                 hoverMouseDown();
               });
 
-              $(this).off('mousedown');
-              $(this).addClass('hover');
-              $(this).mousedown(function (event) {
-                hoverMouseDown();
-              });
+              if ($(this).hasClass('hover') != true) {
+                selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
+                selectionForHover.mousedown(function (event) {
+                  hoverMouseDown();
+                });
+
+                $(this).off('mousedown');
+                $(this).addClass('hover');
+                $(this).mousedown(function (event) {
+                  hoverMouseDown();
+                });
+              }
+
+              elementForHover = this;
             }
-
-            elementForHover = this;
           }
-        }
 
-        event.stopPropagation();
-        return false;
-      });
+          event.stopPropagation();
+          return false;
+        });
+      }
 
     }
 
@@ -508,9 +512,9 @@
 
   <style>
     :root {
-      --color-one-base: brown;
-      --color-one-light: rgb(158, 99, 99);
-      --color-one-dark: rgb(101, 24, 24);
+      --color-one-base: orange;
+      --color-one-light: rgb(255, 231, 183);
+      --color-one-dark: rgb(128, 83, 0);
     }
 
     [hidden] {
