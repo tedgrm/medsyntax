@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <input type="text" id="query-title1" name="query-title1" size="100" onkeydown='updateTitle("query-title1")'>
+  <input type="text" id="query-title1" name="query-title1" size="100" onkeyup='updateTitle("query-title1")'>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onchange='syntaxCheck("query-input1","medsyntax-target1")'
@@ -25,7 +25,7 @@
   <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically potentially unclear boolean operator(s).</p>
 
   <div id="medsyntax" class="medsyntax">
-    <h3 id="medsyntax-title">Medsyntax:</h3>
+    <h3 id="medsyntax-title">medsyntax:</h3>
     <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
     <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
 
@@ -71,11 +71,6 @@
 
       hideWarnings();
 
-      var input = document.getElementById("query-input1");
-      input.addEventListener("keydown", function () {
-        textAreaAdjust(this);
-      });
-
       if (location.search.length > 1) {
         let param1 = getParameterByName('query');
         $("#query-input1").val(LZString.decompressFromEncodedURIComponent(param1));
@@ -91,17 +86,21 @@
       $("#query-title1").val(queryTitle);
       updateTitle("query-title1");
 
-      $('.medsyntax-target .search-string').mouseleave(function (event) {
+      $('.medsyntax-target').mouseleave(function (event) {
         $(".hover").removeClass('hover');
       });
 
+      var input = document.getElementById("query-input1");
       textAreaAdjust(input);
     });
 
-    function textAreaAdjust(element) {
-      element.style.height = "1px";
+    function textAreaAdjust(element, updateHeight) {
+      element.style.height = "50px";
       element.style.width = ($(window).width() - 160) + "px";
-      element.style.height = (12 + element.scrollHeight) + "px";
+      if (updateHeight) {
+        element.style.height = "1px";
+        element.style.height = (12 + element.scrollHeight) + "px";
+      }
     }
 
     function copyQueryFunction() {
@@ -372,6 +371,10 @@
         document.getElementById(warningSquareBracketCloseElementId).hidden = false;
         hasError = true;
       }
+      if (str.indexOf("[") > str.indexOf("]")) {
+        document.getElementById(warningSquareBracketCloseElementId).hidden = false;
+        document.getElementById(warningSquareBracketOpenElementId).hidden = false;
+      }
 
       if (hasError == false) {
         // ambiguous ANDs and ORs
@@ -433,6 +436,7 @@
               }
 
               elementForHover = this;
+
             }
           }
 
@@ -464,39 +468,72 @@
 
       var input = document.getElementById("dynamic-input");
       input.addEventListener("keyup", function () {
-        textAreaAdjust(this);
+        textAreaAdjust(this, true);
       });
-      textAreaAdjust(input);
+      textAreaAdjust(input, true);
     }
 
     function onEnterDynamicInput() {
       var dyText = $("#dynamic-input").val();
       $("#dynamic-input").val(dyText.replace(/\n/g, ' '));
+      $("#dynamic-input").append('<div id="entered-text">' + " " + $("#dynamic-input").val() + " " + '</div>');
+      var str = $("#medsyntax-target1").text();
+
+      // double quote check
+      quotesCount = (str.match(new RegExp('(\\")', 'gi')) || []).length;
+      if (quotesCount % 2 != 0) {
+        alert("number of \" error: please fix before pressing Enter");
+        $("#entered-text").remove();
+        return false;
+      }
+      // single quote check
+      quotesCount = (str.match(new RegExp('(\\\')', 'gi')) || []).length;
+      if (quotesCount % 2 != 0) {
+        alert("number of \' error: please fix before pressing Enter");
+        $("#entered-text").remove();
+        return false;
+      }
 
       // bracket warnings ( and )
-      bracketOpenCount = (dyText.match(new RegExp('(\\()', 'gi')) || []).length;
-      bracketCloseCount = (dyText.match(new RegExp('(\\))', 'gi')) || []).length;
-      if (bracketOpenCount != bracketCloseCount) {
+      bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
+      bracketCloseCount = (str.match(new RegExp('(\\))', 'gi')) || []).length;
+      if (bracketOpenCount > bracketCloseCount) {
         alert("( or ) bracket error: please fix before pressing Enter");
+        $("#entered-text").remove();
+        return false;
+      }
+      if (bracketOpenCount < bracketCloseCount) {
+        alert("( or ) bracket error: please fix before pressing Enter");
+        $("#entered-text").remove();
+        return false;
+      }
+      if (str.indexOf("(") > str.indexOf(")")) {
+        alert("( or ) bracket error: please fix before pressing Enter");
+        $("#entered-text").remove();
         return false;
       }
 
       // bracket warnings [ and ]
-      squareBracketOpenCount = (dyText.match(new RegExp('(\\[)', 'gi')) || []).length;
-      squareBracketCloseCount = (dyText.match(new RegExp('(\\])', 'gi')) || []).length;
-      if (squareBracketOpenCount != squareBracketCloseCount) {
+      squareBracketOpenCount = (str.match(new RegExp('(\\[)', 'gi')) || []).length;
+      squareBracketCloseCount = (str.match(new RegExp('(\\])', 'gi')) || []).length;
+      if (squareBracketOpenCount > squareBracketCloseCount) {
         alert("[ or ] bracket error: please fix before pressing Enter");
+        $("#entered-text").remove();
         return false;
       }
-      if (dyText.indexOf("[") > dyText.indexOf("]")) {
+      if (squareBracketOpenCount < squareBracketCloseCount) {
         alert("[ or ] bracket error: please fix before pressing Enter");
+        $("#entered-text").remove();
+        return false;
+      }
+      if (str.indexOf("[") > str.indexOf("]")) {
+        alert("[ or ] bracket error: please fix before pressing Enter");
+        $("#entered-text").remove();
         return false;
       }
 
-      $("#dynamic-input").replaceWith('<div id="entered-text">' + " " + $("#dynamic-input").val() + " " + '</div>');
-      var enteredText = $("#medsyntax-target1").text();
-      enteredText = enteredText.replace(/  +/g, ' ');
-      $("#query-input1").val(enteredText);
+      str = str.replace(/  +/g, ' ');
+      $("#query-input1").val(str);
       syntaxCheck("query-input1", "medsyntax-target1");
     }
 
