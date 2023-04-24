@@ -215,9 +215,9 @@
 
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
     var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi');
-    var termStrayRe = new RegExp('(\\/div>([1-9]{1,}?)\\w+<div)');
-    var termStrayExtraRe = new RegExp('(\\/div>([1-9]{1,}?)(.{1,}?)<div)');
-    var termStrayNumberRe = new RegExp('(\\/div>([1-9]{1,}?)<div)');
+    var termStrayRe = new RegExp('(\\/div>([1-9]{1,}?)\\w+<div)', 'gi');
+    var termStrayExtraRe = new RegExp('(\\/div>([1-9]{1,}?)(.{1,}?)<div)', 'gi');
+    var termStrayNumberRe = new RegExp('(\\/div>([1-9]{1,}?)<div)', 'gi');
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
