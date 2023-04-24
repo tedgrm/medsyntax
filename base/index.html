@@ -550,8 +550,9 @@
   <style>
     :root {
       --color-one-base: orange;
+      --color-one-dark-text: darkblue;
       --color-one-light: rgb(255, 231, 183);
-      --color-one-dark: rgb(128, 83, 0);
+      --color-one-dark: rgb(137, 89, 0);
     }
 
     [hidden] {
@@ -662,7 +663,8 @@
     }
 
     .medsyntax-target div.boolean {
-      color: darkblue;
+      color: var(--color-one-dark-text);
+      /* color: black; */
       padding-left: 5px;
       padding-right: 5px;
       font-weight: bold;
