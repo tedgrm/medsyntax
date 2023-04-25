@@ -8,7 +8,8 @@
 </head>
 
 <body>
-  <input type="text" id="query-title1" name="query-title1" size="100" onkeyup='updateTitle("query-title1")'>
+  <input type="text" id="query-title1" class="query-title" name="query-title1" size="100"
+    onkeyup='updateTitle("query-title1")'>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onchange='syntaxCheck("query-input1","medsyntax-target1")'
@@ -215,9 +216,12 @@
 
     var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
     var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi');
-    var termStrayRe = new RegExp('(\\/div>([1-9]{1,}?)\\w+<div)', 'gi');
-    var termStrayExtraRe = new RegExp('(\\/div>([1-9]{1,}?)(.{1,}?)<div)', 'gi');
-    var termStrayNumberRe = new RegExp('(\\/div>([1-9]{1,}?)<div)', 'gi');
+    var termStrayRe = new RegExp('(\\/div>([0-9]{1,}?)\\w+<div)', 'gi');
+    var termStrayExtraRe = new RegExp('(\\/div>([0-9]{1,}?)(.{1,}?)<div)', 'gi');
+    var termStrayNumberRe = new RegExp('(\\/div>([0-9]{1,}?)<div)', 'gi');
+    var termStraySpaceNumberRe = new RegExp('(\\/div>[ ]([0-9]{1,}?)<div)', 'gi');
+    var termStraySpaceNumberSpaceRe = new RegExp('(\\/div>[ ]([0-9]{1,}?)[ ]<div)', 'gi');
+    var termStrayNumberSpaceRe = new RegExp('(\\/div>([0-9]{1,}?)[ ]<div)', 'gi');
     var andRe = new RegExp('( AND | and )', 'gi');
     var orRe = new RegExp('( OR | or )', 'gi');
     var notRe = new RegExp('( NOT | not )', 'gi');
@@ -272,6 +276,7 @@
     }
 
     function termReFunction(x) {
+      console.log(x);
       x = x.replace("<div", "</div><div");
       x = x.replace("/div>", "/div><div class=\"term\">");
       return x;
@@ -336,6 +341,9 @@
         str = str.replace(termStrayRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayExtraRe, function (x) { return termReFunction(x); }); //make stray words elements
         str = str.replace(termStrayNumberRe, function (x) { return termReFunction(x); }); //make stray words elements
+        str = str.replace(termStraySpaceNumberRe, function (x) { return termReFunction(x); }); //make stray words elements
+        str = str.replace(termStraySpaceNumberSpaceRe, function (x) { return termReFunction(x); }); //make stray words elements
+        str = str.replace(termStrayNumberSpaceRe, function (x) { return termReFunction(x); }); //make stray words elements
       }
 
       //TODO regex toevoegen om laatste strays op te pakken: moet ook vreemde tekens oppakken
@@ -554,6 +562,8 @@
       --color-one-dark-text: rgb(11, 11, 107);
       --color-one-light: rgb(255, 231, 183);
       --color-one-dark: rgb(137, 89, 0);
+      --font-sans: Tahoma, Verdana, sans-serif;
+      --font-serif: Courier New, serif;
     }
 
     [hidden] {
@@ -578,13 +588,15 @@
 
     body {
       background-color: lightgrey;
-      font: icon;
+      /* font: message-box; */
+      font-family: var(--font-sans);
     }
 
     #demo2 {
       padding: 5px;
       background-color: lightslategray;
-      font: message-box;
+      /* font: message-box; */
+      font-family: var(--font-sans);
     }
 
     #demo-button {
@@ -592,13 +604,22 @@
       margin-bottom: 5px;
     }
 
+    .query-title {
+      font: message-box;
+      /* font-family: var(--font-sans); */
+      background-color: whitesmoke;
+    }
+
     .query-input {
       padding: 5px;
       font: message-box;
+      /* font-family: var(--font-sans); */
+      background-color: whitesmoke;
     }
 
     .dynamic-input {
       font: message-box;
+      /* font-family: var(--font-sans); */
       background: var(--color-one-light);
       border-width: 3px;
     }
@@ -612,12 +633,13 @@
       color: black;
       display: inline-block;
       /* margin-bottom: 2px; */
-      padding-bottom: 2px;
+      /* padding-bottom: 2px; */
       /* padding-top: 2px; */
     }
 
     .medsyntax div.search-string div.boolean-error {
-      color: white;
+      /* color: white; */
+      background-color: whitesmoke;
       background: black;
     }
 
@@ -637,12 +659,12 @@
     }
 
     .medsyntax div.search-string {
-      background-color: white;
+      /* background-color: white; */
+      background-color: whitesmoke;
       padding: 15px;
       padding-top: 20px;
       border-radius: 5px;
       display: inline-block;
-      font: icon;
       margin-right: 15px;
     }
 
@@ -669,10 +691,11 @@
       padding-left: 5px;
       padding-right: 5px;
       font-weight: bold;
+      font-family: var(--font-serif);
     }
 
     .medsyntax-target div.brackets {
-      padding: 3px;
+      /* padding: 3px; */
       border-radius: 5px;
       border: var(--color-one-dark);
       /* border: black; */
@@ -705,8 +728,9 @@
     }
 
     .medsyntax-target div.square-brackets {
-      color: rgb(111, 111, 111);
+      /* color: rgb(111, 111, 111); */
       padding-right: 2px;
+      font-family: var(--font-serif);
     }
 
     .medsyntax .medsyntax-target .search-string .square-brackets div {
@@ -716,18 +740,22 @@
 
     .medsyntax-target div.near {
       padding-left: 5px;
-      color: rgb(111, 111, 111);
+      /* color: rgb(111, 111, 111); */
+      color: grey;
       font-weight: bold;
+      font-family: var(--font-serif);
     }
 
     .medsyntax-target div.embase {
-      color: rgb(111, 111, 111);
+      /* color: rgb(111, 111, 111); */
+      font-family: var(--font-serif);
     }
 
     .medsyntax-target div.pubmed {
-      color: rgb(111, 111, 111);
+      /* color: rgb(111, 111, 111); */
       padding-right: 3px;
       padding-left: 3px;
+      font-family: var(--font-serif);
     }
 
     p.warning-medsyntax {
