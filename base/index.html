@@ -26,13 +26,14 @@
 <body>
   <input type="text" id="query-title1" class="query-title" name="query-title1" size="100"
     onkeyup='updateTitle("query-title1")'>
+  <button onclick="clearButtonFunc()">
+    Click here to clear query
+  </button>
   <br>
   <textarea id="query-input1" class="query-input" name="query-input" rows="10" cols="100"
     onkeyup='syntaxCheck("query-input1","medsyntax-target1")' onchange='syntaxCheck("query-input1","medsyntax-target1")'
     onclick='syntaxCheck("query-input1","medsyntax-target1")'></textarea>
-  <button onclick="clearButtonFunc()">
-    Click here to clear
-  </button>
+
 
   <p id="warning-bracket-open" class="warning-medsyntax">Too many ( in query. Or not enough ) in query.</p>
   <p id="warning-bracket-close" class="warning-medsyntax">Too many ) in query. Or not enough ( in query.</p>
@@ -602,7 +603,7 @@
       display: block;
     }
 
-    .query-title{
+    .query-title {
       padding: 2px;
       margin-bottom: 5px;
       border-radius: 3px;
