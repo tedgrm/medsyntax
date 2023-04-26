@@ -477,6 +477,10 @@
         });
       }
 
+      makeResizableTarget();
+    }
+
+    function makeResizableTarget() {
       if ($(window).width() > 1000) {
         $("#medsyntax-target1").resizable();
         //    margin-right: 60px;
@@ -484,9 +488,6 @@
       }
     }
 
-  </script>
-
-  <script>
     // Start edit on mouse down method
     function hoverMouseDown() {
       $('.medsyntax-target div').off('mousemove');
