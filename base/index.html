@@ -4,7 +4,23 @@
   <meta charset="utf-8">
   <meta name="description" content="Syntax assistant for pubmed, embase and other (medical) database search engines">
   <title>Medsyntax</title>
-  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+
+  <!-- jquery and jqueryui -->
+  <style>
+    .ui-icon-gripsmall-diagonal-se {
+      background: lightcoral;
+      /* border-color: black; */
+      border-radius: 7px;
+      /* right: -7px; */
+      border-style: solid;
+      margin-right: -50px;
+      background-position: -64px -224px;
+    }
+  </style>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -30,8 +46,11 @@
     <button id="demo-button" onclick="demoClickFunction()">demo button (click to demo)</button>
     <p id="demo2" hidden="hidden">demo tekst uit variabele</p>
 
-    <div id="medsyntax-target1" class="medsyntax-target brackets">Please input search query in text area.</div>
+    <div id="medsyntax-target1" class="medsyntax-target">Please input search query in text area.</div>
   </div>
+
+  <br>
+  <br>
 
   <!-- The button used to copy the query -->
   <input type="text" value="Hello World" id="myQueryInput" hidden="hidden">
@@ -405,17 +424,21 @@
         && bracketOpenCount == bracketCloseCount
         && document.getElementById(warningQuotesElementId).hidden) {
         var elementForHover;
-        $('.medsyntax-target div').mousemove(function (event) {
+        $('.medsyntax-target .search-string div').mousemove(function (event) {
 
           if (elementForHover != this) {
             if ($(this).hasClass('hover')) {
             } else {
               if ($(this).parent().hasClass('square-brackets')) {
-                event.stopPropagation();
+                // event.stopPropagation();
                 return false;
               }
 
               $('.medsyntax-target div').removeClass('hover');
+              if ($(this).parent().hasClass('hover')) {
+                // event.stopPropagation();
+                return false;
+              }
               $('.medsyntax-target div').off('mousedown');
 
               var selectionForHover = $(this);
@@ -448,11 +471,16 @@
             }
           }
 
-          event.stopPropagation();
+          // event.stopPropagation();
           return false;
         });
       }
 
+      if ($(window).width() > 1000) {
+        $("#medsyntax-target1").resizable();
+        //    margin-right: 60px;
+        $("#medsyntax-target1").css("margin-right", "160px");
+      }
     }
 
   </script>
@@ -665,7 +693,6 @@
       padding-top: 20px;
       border-radius: 5px;
       display: inline-block;
-      margin-right: 15px;
     }
 
     .medsyntax-target div.quote-term {
@@ -695,9 +722,10 @@
     }
 
     .medsyntax-target div.brackets {
-      /* padding: 3px; */
+      padding: 3px;
       border-radius: 5px;
       border: var(--color-one-dark);
+      /* background: var(--color-one-lightest); */
       /* border: black; */
       border-style: solid;
       margin-left: 3px;
