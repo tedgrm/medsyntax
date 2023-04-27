@@ -462,7 +462,7 @@
             if ($(this).hasClass('hover')) {
               return false;
             }
-            makeHoverables(targetElementId, this)
+            makeEditScope(targetElementId, this)
             elementForHover = this;
           }
 
@@ -474,10 +474,10 @@
       makeResizableTarget(targetElementId);
     }
 
-    function makeHoverables(targetElementId, element) {
+    function makeEditScope(targetElementId, element) {
       if ($(element).parent().hasClass('square-brackets')) {
         // event.stopPropagation();
-        return false;
+        // return false;
       }
 
       $('#' + targetElementId + ' div').removeClass('hover');
