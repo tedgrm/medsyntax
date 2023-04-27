@@ -122,7 +122,7 @@
       if (widthTarget) {
         element.style.width = ($(widthTarget).width()) - (bracketAncestorCount(element) * 25) + "px";
       } else {
-        element.style.width = ($(window).width() - 160) + "px";
+        element.style.width = ($(window).width() - 190) + "px";
       }
       if (updateHeight) {
         element.style.height = "1px";
@@ -510,6 +510,7 @@
       $("#medsyntax-target1").resizable();
       $("#medsyntax-target1").resizable("destroy");
       if ($(window).width() > 1000) {
+        $("body").css("margin-left", "20px");
         $("#medsyntax-target1").resizable();
         console.log("resizable");
         //    margin-right: 60px;
@@ -703,8 +704,8 @@
     }
 
     .medsyntax div.search-string div.boolean-error {
-      /* color: white; */
-      background-color: whitesmoke;
+      color: white;
+      /* background-color: whitesmoke; */
       background: black;
     }
 
