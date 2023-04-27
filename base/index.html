@@ -456,51 +456,14 @@
         && bracketOpenCount == bracketCloseCount
         && document.getElementById(warningQuotesElementId).hidden) {
         var elementForHover;
-        $('.medsyntax-target .search-string div').mousemove(function (event) {
+        $('#' + targetElementId + ' .search-string div').mousemove(function (event) {
 
           if (elementForHover != this) {
             if ($(this).hasClass('hover')) {
-            } else {
-              if ($(this).parent().hasClass('square-brackets')) {
-                // event.stopPropagation();
-                return false;
-              }
-
-              $('.medsyntax-target div').removeClass('hover');
-              if ($(this).parent().hasClass('hover')) {
-                // event.stopPropagation();
-                return false;
-              }
-              $('.medsyntax-target div').off('mousedown');
-
-              var selectionForHover = $(this);
-              if ($(this).hasClass('brackets')) {
-                selectionForHover = $(this).addClass('hover');
-              } else if ($(this).hasClass('bracket-open')) {
-                selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
-              } else {
-                selectionForHover = $(this).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
-              }
-              selectionForHover.mousedown(function (event) {
-                hoverMouseDown();
-              });
-
-              if ($(this).hasClass('hover') != true) {
-                selectionForHover = $(this).nextUntil('.brackets').addBack().addClass('hover');
-                selectionForHover.mousedown(function (event) {
-                  hoverMouseDown();
-                });
-
-                $(this).off('mousedown');
-                $(this).addClass('hover');
-                $(this).mousedown(function (event) {
-                  hoverMouseDown();
-                });
-              }
-
-              elementForHover = this;
-
+              return false;
             }
+            makeHoverables(targetElementId, this)
+            elementForHover = this;
           }
 
           // event.stopPropagation();
@@ -508,18 +471,57 @@
         });
       }
 
-      makeResizableTarget();
+      makeResizableTarget(targetElementId);
     }
 
-    function makeResizableTarget() {
-      $("#medsyntax-target1").resizable();
-      $("#medsyntax-target1").resizable("destroy");
+    function makeHoverables(targetElementId, element) {
+      if ($(element).parent().hasClass('square-brackets')) {
+        // event.stopPropagation();
+        return false;
+      }
+
+      $('#' + targetElementId + ' div').removeClass('hover');
+      if ($(element).parent().hasClass('hover')) {
+        // event.stopPropagation();
+        return false;
+      }
+      $('#' + targetElementId + ' div').off('mousedown');
+
+      var selectionForHover = $(element);
+      if ($(element).hasClass('brackets')) {
+        selectionForHover = $(element).addClass('hover');
+      } else if ($(element).hasClass('bracket-open')) {
+        selectionForHover = $(element).nextUntil('.brackets').addBack().addClass('hover');
+      } else {
+        selectionForHover = $(element).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
+      }
+      selectionForHover.mousedown(function (event) {
+        hoverMouseDown();
+      });
+
+      if ($(element).hasClass('hover') != true) {
+        selectionForHover = $(element).nextUntil('.brackets').addBack().addClass('hover');
+        selectionForHover.mousedown(function (event) {
+          hoverMouseDown();
+        });
+
+        $(element).off('mousedown');
+        $(element).addClass('hover');
+        $(element).mousedown(function (event) {
+          hoverMouseDown();
+        });
+      }
+    }
+
+    function makeResizableTarget(targetElementId) {
+      $('#' + targetElementId).resizable();
+      $('#' + targetElementId).resizable("destroy");
       if ($(window).width() > 1000) {
         $("body").css("margin-left", "20px");
-        $("#medsyntax-target1").resizable();
+        $('#' + targetElementId).resizable();
         console.log("resizable");
         //    margin-right: 60px;
-        $("#medsyntax-target1").css("margin-right", "160px");
+        $('#' + targetElementId).css("margin-right", "160px");
       }
     }
 
@@ -535,7 +537,7 @@
         .replaceWith('<textarea id="dynamic-input" class="dynamic-input"/>');
 
       $("#dynamic-input").val(text);
-      $("#dynamic-input").on('keyup', function (e) {
+      $("#dynamic-input").on('keydown', function (e) {
         if (e.key == 'Enter') {
           onEnterDynamicInput();
         }
