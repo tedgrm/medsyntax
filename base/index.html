@@ -84,6 +84,9 @@
 
   <script>
     var medsyntaxTargetWidth;
+    var runningSyntaxCheck = false;
+    var stringLatestString = "";
+    var time = Date.now();
 
     $(document).ready(function () {
       $(document).click(function (event) {
