@@ -115,13 +115,31 @@
       textAreaAdjust(input);
     });
 
-    function textAreaAdjust(element, updateHeight) {
+    function textAreaAdjust(element, updateHeight, widthTarget) {
       element.style.height = "50px";
-      element.style.width = ($(window).width() - 160) + "px";
+      if (widthTarget) {
+        element.style.width = ($(widthTarget).width()) - (bracketAncestorCount(element) * 10) + "px";
+      } else {
+        element.style.width = ($(window).width() - 160) + "px";
+      }
       if (updateHeight) {
         element.style.height = "1px";
         element.style.height = (12 + element.scrollHeight) + "px";
       }
+    }
+
+    function bracketAncestorCount(element) {
+      // number of brackets in ancestors
+      let nodes = [];
+      let element1 = element;
+      nodes.push(element1);
+      while (element1.parentElement) {
+        if (element1.parentElement.classList.contains('brackets')) {
+          nodes.unshift(element1.parentElement);
+        }
+        element1 = element1.parentElement;
+      }
+      return nodes.length;
     }
 
     function copyQueryFunction() {
@@ -255,10 +273,8 @@
     var special = "___";
 
     function nearOpFunction(x) {
-      // console.log("Near:   " + x);
       x = "<div class=near>" + x + " " + "</div>";
       x = x.replace(new RegExp('/', 'gi'), specialSlash);
-      // console.log(x);
       return x;
     }
 
@@ -296,7 +312,6 @@
     }
 
     function termReFunction(x) {
-      console.log(x);
       x = x.replace("<div", "</div><div");
       x = x.replace("/div>", "/div><div class=\"term\">");
       return x;
@@ -481,8 +496,10 @@
     }
 
     function makeResizableTarget() {
+      // $("#medsyntax-target1").resizable("disable");
       if ($(window).width() > 1000) {
         $("#medsyntax-target1").resizable();
+        console.log("resizable");
         //    margin-right: 60px;
         $("#medsyntax-target1").css("margin-right", "160px");
       }
@@ -506,9 +523,9 @@
 
       var input = document.getElementById("dynamic-input");
       input.addEventListener("keyup", function () {
-        textAreaAdjust(this, true);
+        textAreaAdjust(this, true, "#search-string");
       });
-      textAreaAdjust(input, true);
+      textAreaAdjust(input, true, "#search-string");
     }
 
     function onEnterDynamicInput() {
@@ -821,7 +838,7 @@
 
     .tooltip .tooltiptext {
       visibility: hidden;
-      width: 140px;
+      width: 400px;
       background-color: #555;
       color: #fff;
       text-align: center;
