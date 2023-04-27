@@ -83,6 +83,8 @@
   </div>
 
   <script>
+    var medsyntaxTargetWidth;
+
     $(document).ready(function () {
       $(document).click(function (event) {
         var $target = $(event.target);
@@ -117,10 +119,13 @@
       textAreaAdjust(input);
     });
 
-    function textAreaAdjust(element, updateHeight, widthTarget) {
+    function textAreaAdjust(element, updateHeight, targetWidth) {
       element.style.height = "50px";
-      if (widthTarget) {
-        element.style.width = ($(widthTarget).width()) - (bracketAncestorCount(element) * 25) + "px";
+      if (targetWidth > 0) {
+        if (bracketAncestorCount(element) > 0) {
+          element.style.width = (targetWidth) - (bracketAncestorCount(element) * 25) + "px";
+          console.log(bracketAncestorCount(element));
+        }
       } else {
         element.style.width = ($(window).width() - 200) + "px";
       }
@@ -520,6 +525,8 @@
 
     // Start edit on mouse down method
     function hoverMouseDown() {
+      medsyntaxTargetWidth = $("#medsyntax-target1").width();
+      $("#medsyntax-target1").resizable("destroy");
       $('.medsyntax-target div').off('mousemove');
 
       var text = $(".hover").text();
@@ -536,9 +543,9 @@
 
       var input = document.getElementById("dynamic-input");
       input.addEventListener("keyup", function () {
-        textAreaAdjust(this, true, "#search-string");
+        textAreaAdjust(this, true, medsyntaxTargetWidth);
       });
-      textAreaAdjust(input, true, "#search-string");
+      textAreaAdjust(input, true, medsyntaxTargetWidth);
     }
 
     function onEnterDynamicInput() {
