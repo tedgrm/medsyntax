@@ -475,41 +475,52 @@
     }
 
     function makeEditScope(targetElementId, element) {
-      if ($(element).parent().hasClass('square-brackets')) {
-        // event.stopPropagation();
-        // return false;
-      }
-
       $('#' + targetElementId + ' div').removeClass('hover');
-      if ($(element).parent().hasClass('hover')) {
-        // event.stopPropagation();
-        return false;
-      }
       $('#' + targetElementId + ' div').off('mousedown');
 
       var selectionForHover = $(element);
       if ($(element).hasClass('brackets')) {
         selectionForHover = $(element).addClass('hover');
-      } else if ($(element).hasClass('bracket-open')) {
-        selectionForHover = $(element).nextUntil('.brackets').addBack().addClass('hover');
-      } else {
-        selectionForHover = $(element).prevUntil('.brackets').nextUntil('.brackets').addBack().addClass('hover');
-      }
-      selectionForHover.mousedown(function (event) {
-        hoverMouseDown();
-      });
-
-      if ($(element).hasClass('hover') != true) {
-        selectionForHover = $(element).nextUntil('.brackets').addBack().addClass('hover');
         selectionForHover.mousedown(function (event) {
           hoverMouseDown();
         });
+      }
 
+      try {
+        // Block of code to try
+        addHoverThisAndNextElement(element);
+      }
+      catch (err) {
+        // Block of code to handle errors
+      }
+      try {
+        //Block of code to try
+        addHoverThisAndPrevElement(element);
+      }
+      catch (err) {
+        // Block of code to handle errors
+      }
+    }
+
+    function addHoverThisAndNextElement(element) {
+      if (!$(element).hasClass('brackets')) {
         $(element).off('mousedown');
         $(element).addClass('hover');
         $(element).mousedown(function (event) {
           hoverMouseDown();
         });
+        addHoverThisAndNextElement($(element).next())
+      }
+    }
+
+    function addHoverThisAndPrevElement(element) {
+      if (!$(element).hasClass('brackets')) {
+        $(element).off('mousedown');
+        $(element).addClass('hover');
+        $(element).mousedown(function (event) {
+          hoverMouseDown();
+        });
+        addHoverThisAndPrevElement($(element).prev())
       }
     }
 
