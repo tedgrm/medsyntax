@@ -9,16 +9,13 @@
   <style>
     .ui-icon-gripsmall-diagonal-se {
       background: lightcoral;
-      /* border-color: black; */
       border-radius: 7px;
-      /* right: -7px; */
       border-style: solid;
       margin-right: -50px;
       background-position: -64px -224px;
     }
   </style>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
   <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 </head>
@@ -26,7 +23,7 @@
 <body>
   <input type="text" id="query-title1" class="query-title" name="query-title1" size="100"
     onkeyup='updateTitle("query-title1")'>
-  <button onclick="clearButtonFunc()">
+  <button id="clear-button" onclick="clearButtonFunc()">
     Click here to clear query
   </button>
   <br>
@@ -78,7 +75,12 @@
       onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
       href="#" download="medsyntax.html">Download Hidden</a>
   </button>
-  <button id="download-button" onclick="downloadFunction()">Download</button>
+  <div class="tooltip">
+    <button id="download-button" onclick="downloadFunction()">
+      <span class="tooltiptext" id="myDownloadTooltip">Download visualisation only</span>
+      Download
+    </button>
+  </div>
 
   <script>
     $(document).ready(function () {
@@ -118,7 +120,7 @@
     function textAreaAdjust(element, updateHeight, widthTarget) {
       element.style.height = "50px";
       if (widthTarget) {
-        element.style.width = ($(widthTarget).width()) - (bracketAncestorCount(element) * 10) + "px";
+        element.style.width = ($(widthTarget).width()) - (bracketAncestorCount(element) * 25) + "px";
       } else {
         element.style.width = ($(window).width() - 160) + "px";
       }
@@ -222,14 +224,23 @@
       document.getElementById("download-button").hidden = true;
       document.getElementById("copy-query-button").hidden = true;
       document.getElementById("copy-link-button").hidden = true;
+      document.getElementById("clear-button").hidden = true;
+      $("body").prepend('<div id="query-title-static1">' + " " + $("#query-title1").val() + " " + '</div>');
+      document.getElementById("query-title1").hidden = true;
+
+      $("#medsyntax-target1").resizable("destroy");
 
       document.getElementById("download-button-hidden").click();
 
+      $("#query-title-static1").remove();
+      document.getElementById("query-title1").hidden = false;
+      $("#medsyntax-target1").resizable();
       document.getElementById("medsyntax-title").hidden = false;
       document.getElementById("query-input1").hidden = false;
       document.getElementById("download-button").hidden = false;
       document.getElementById("copy-query-button").hidden = false;
       document.getElementById("copy-link-button").hidden = false;
+      document.getElementById("clear-button").hidden = false;
     }
 
     var warningBracketCloseElementId = "warning-bracket-close";
@@ -496,7 +507,8 @@
     }
 
     function makeResizableTarget() {
-      // $("#medsyntax-target1").resizable("disable");
+      $("#medsyntax-target1").resizable();
+      $("#medsyntax-target1").resizable("destroy");
       if ($(window).width() > 1000) {
         $("#medsyntax-target1").resizable();
         console.log("resizable");
@@ -848,7 +860,7 @@
       z-index: 1;
       bottom: 150%;
       left: 50%;
-      margin-left: -75px;
+      /* margin-left: -75px; */
       opacity: 0;
       transition: opacity 0.3s;
     }
@@ -857,7 +869,7 @@
       content: "";
       position: absolute;
       top: 100%;
-      left: 50%;
+      left: 15px;
       margin-left: -5px;
       border-width: 5px;
       border-style: solid;
@@ -869,6 +881,8 @@
       opacity: 1;
     }
   </style>
+
+
 </body>
 
 </html>
