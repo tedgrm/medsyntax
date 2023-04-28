@@ -127,7 +127,7 @@
       if (targetWidth > 0) {
         if (bracketAncestorCount(element) > 0) {
           element.style.width = (targetWidth) - (bracketAncestorCount(element) * 25) + "px";
-          console.log(bracketAncestorCount(element));
+          // console.log(bracketAncestorCount(element));
         }
       } else {
         element.style.width = ($(window).width() - 200) + "px";
@@ -337,6 +337,8 @@
     }
 
     function syntaxCheck(sourceElementId, targetElementId) {
+      time = Date.now();
+
       var str = document.getElementById(sourceElementId).value;
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
@@ -400,7 +402,6 @@
         str = str.replace(termStrayNumberSpaceRe, function (x) { return termReFunction(x); }); //make stray words elements
       }
 
-      //TODO regex toevoegen om laatste strays op te pakken: moet ook vreemde tekens oppakken
       res = str;
       document.getElementById(targetElementId).innerHTML = res;
 
@@ -475,6 +476,7 @@
       }
 
       makeResizableTarget(targetElementId);
+      console.log('duration: ' + (Date.now() - time) + 'ms');
     }
 
     function makeEditScope(targetElementId, element) {
@@ -533,7 +535,7 @@
       if ($(window).width() > 1000) {
         $("body").css("margin-left", "20px");
         $('#' + targetElementId).resizable();
-        console.log("resizable");
+        // console.log("resizable");
         //    margin-right: 60px;
         $('#' + targetElementId).css("margin-right", "160px");
       }
