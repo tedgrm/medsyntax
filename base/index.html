@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="description" content="Syntax assistant for pubmed, embase and other (medical) database search engines">
   <title>Medsyntax</title>
+  <link rel="stylesheet" href="style.css">
 
   <!-- jquery and jqueryui -->
   <style>
@@ -84,7 +85,6 @@
 
   <script>
     var medsyntaxTargetWidth;
-    var runningSyntaxCheck = false;
     var stringLatestString = "";
     var time = Date.now();
 
@@ -271,74 +271,9 @@
 
     //*** Syntax highlighter code ***//
 
-    var quotedTermRe = new RegExp('([\"\'])(?:(?=(\\\\?))\\2.)*?\\1', 'gi');
-    var termRe = new RegExp('(\\\/div>([A-Z].{1,}?)<div)|(\\\/div>( +[A-Z].{1,}?)<div)', 'gi');
-    var termStrayRe = new RegExp('(\\/div>([0-9]{1,}?)\\w+<div)', 'gi');
-    var termStrayExtraRe = new RegExp('(\\/div>([0-9]{1,}?)(.{1,}?)<div)', 'gi');
-    var termStrayNumberRe = new RegExp('(\\/div>([0-9]{1,}?)<div)', 'gi');
-    var termStraySpaceNumberRe = new RegExp('(\\/div>[ ]([0-9]{1,}?)<div)', 'gi');
-    var termStraySpaceNumberSpaceRe = new RegExp('(\\/div>[ ]([0-9]{1,}?)[ ]<div)', 'gi');
-    var termStrayNumberSpaceRe = new RegExp('(\\/div>([0-9]{1,}?)[ ]<div)', 'gi');
-    var andRe = new RegExp('( AND | and )', 'gi');
-    var orRe = new RegExp('( OR | or )', 'gi');
-    var notRe = new RegExp('( NOT | not )', 'gi');
-    var nearOpRe = new RegExp('(( \\w+[A-Za-z][\/][0-9]+)|( [A-Za-z][\/][0-9]+))', 'gi');
-    var embaseRe = new RegExp('(([\/][A-Za-z])\\w+|([\:][A-Za-z])\\w+|([,][A-Za-z])\\w+|([.][A-Za-z])\\w+)', 'gi');
-    var pubmedRe = new RegExp('([ ][w|n][0-9]+)', 'gi');
-    var embasePhrase = ":";
-    var embaseExact = "/";
-    var specialColon = "isfgsvkhADSFVMQEREGQ";
-    var specialSlash = "n7k8nkumhngbwSAVRUTY";
-    var special = "___";
-
-    function nearOpFunction(x) {
-      x = "<div class=near>" + x + " " + "</div>";
-      x = x.replace(new RegExp('/', 'gi'), specialSlash);
-      return x;
-    }
-
-    function embaseFunction(x) {
-      x = "<div class=embase>" + x + "</div>";
-      return x;
-    }
-
-    function pubmedFunction(x) {
-      x = "<div class=pubmed>" + x + "</div>";
-      return x;
-    }
-
-    function booleanAndFunction(x) {
-      x = "<div class=\"boolean and\">" + x + "</div>";
-      return x;
-    }
-
-    function booleanOrFunction(x) {
-      x = "<div class=\"boolean or\">" + x + "</div>";
-      return x;
-    }
-
-    function booleanNotFunction(x) {
-      x = "<div class=\"boolean not\">" + x + "</div>";
-      return x;
-    }
-
-    function quotedTermToElement(x) {
-      x = x.replace(new RegExp(' ', 'gi'), special);
-      x = "<div class=quote-term>" + x + "</div>";
-      x = x.replace(new RegExp('/', 'gi'), specialSlash);
-      x = x.replace(new RegExp(':', 'gi'), specialColon);
-      return x;
-    }
-
-    function termReFunction(x) {
-      x = x.replace("<div", "</div><div");
-      x = x.replace("/div>", "/div><div class=\"term\">");
-      return x;
-    }
+    const myWorker = new Worker("worker.js");
 
     function syntaxCheck(sourceElementId, targetElementId) {
-      time = Date.now();
-
       var str = document.getElementById(sourceElementId).value;
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
@@ -365,43 +300,14 @@
         hasError = true;
       }
 
-      str = str.replace(quotedTermRe, function (x) { return quotedTermToElement(x); });
-      str = str.replace(embaseRe, function (x) { return embaseFunction(x); });
-      str = str.replace(nearOpRe, function (x) { return nearOpFunction(x); });
-      // str = str.replace(pubmedRe, function (x) { return pubmedFunction(x); }); //TODO bestaat dit nog in PubMed? Of is alles met ~ tussen de [] 
-      str = str.replace(andRe, function (x) { return booleanAndFunction(x); });
-      str = str.replace(orRe, function (x) { return booleanOrFunction(x); });
-      str = str.replace(notRe, function (x) { return booleanNotFunction(x); });
+      myWorker.postMessage(str);
+      myWorker.onmessage = (e) => {
+        console.log("Message received from worker");
+        afterParseFuntion(e.data, targetElementId, hasError);
+      };
+    }
 
-      // brackets
-      str = str.replaceAll("(", "<div class=\"brackets\"><div class=\"bracket-open\">(</div>");
-      str = str.replaceAll(")", "<div class=\"bracket-close\">)</div></div>");
-
-      // square brackets
-      str = str.replaceAll("[", "<div class=\"square-brackets\">[");
-      str = str.replaceAll("]", "]</div>");
-
-      str = str.replace(new RegExp(specialSlash, 'gi'), '/'); //un-special-fy
-      str = str.replace(new RegExp(specialColon, 'gi'), ':'); //un-special-fy
-      str = str.replace(new RegExp(special, 'gi'), ' '); //un-special-fy
-      str = str.replace('class=embase', 'class=\"embase\"'); //un-special-fy embase
-      str = str.replace('</div>.', '</div><div class="embase">.</div>'); //embas "." cleanup
-      str = str.replace('class=quote-term', 'class=\"quote-term\"'); //un-special-fy quote
-
-      // make stray words elements
-      str = "<div id=\"search-string\" class=\"search-string\"><div class=\"dummy\"></div>" + str + "<div class=\"dummy\"></div></div>"
-      strOld = "";
-      while (str != strOld) {
-        strOld = str;
-        str = str.replace(termRe, function (x) { return termReFunction(x); }); //make stray words elements
-        str = str.replace(termStrayRe, function (x) { return termReFunction(x); }); //make stray words elements
-        str = str.replace(termStrayExtraRe, function (x) { return termReFunction(x); }); //make stray words elements
-        str = str.replace(termStrayNumberRe, function (x) { return termReFunction(x); }); //make stray words elements
-        str = str.replace(termStraySpaceNumberRe, function (x) { return termReFunction(x); }); //make stray words elements
-        str = str.replace(termStraySpaceNumberSpaceRe, function (x) { return termReFunction(x); }); //make stray words elements
-        str = str.replace(termStrayNumberSpaceRe, function (x) { return termReFunction(x); }); //make stray words elements
-      }
-
+    function afterParseFuntion(str, targetElementId, hasError) {    
       res = str;
       document.getElementById(targetElementId).innerHTML = res;
 
@@ -439,6 +345,7 @@
         document.getElementById(warningSquareBracketOpenElementId).hidden = false;
       }
 
+      time = Date.now();
       if (hasError == false) {
         // ambiguous ANDs and ORs
         var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
@@ -455,6 +362,7 @@
           hasError = true;
         }
       }
+      console.log('duration: ' + (Date.now() - time) + 'ms');
 
       if (squareBracketOpenCount == squareBracketCloseCount
         && bracketOpenCount == bracketCloseCount
@@ -476,7 +384,6 @@
       }
 
       makeResizableTarget(targetElementId);
-      console.log('duration: ' + (Date.now() - time) + 'ms');
     }
 
     function makeEditScope(targetElementId, element) {
@@ -639,275 +546,6 @@
     // LZString is under MIT License from https://github.com/pieroxy Copyright (c) 2013 pieroxy
     var LZString = function () { var r = String.fromCharCode, o = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", n = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$", e = {}; function t(r, o) { if (!e[r]) { e[r] = {}; for (var n = 0; n < r.length; n++)e[r][r.charAt(n)] = n } return e[r][o] } var i = { compressToBase64: function (r) { if (null == r) return ""; var n = i._compress(r, 6, function (r) { return o.charAt(r) }); switch (n.length % 4) { default: case 0: return n; case 1: return n + "==="; case 2: return n + "=="; case 3: return n + "=" } }, decompressFromBase64: function (r) { return null == r ? "" : "" == r ? null : i._decompress(r.length, 32, function (n) { return t(o, r.charAt(n)) }) }, compressToUTF16: function (o) { return null == o ? "" : i._compress(o, 15, function (o) { return r(o + 32) }) + " " }, decompressFromUTF16: function (r) { return null == r ? "" : "" == r ? null : i._decompress(r.length, 16384, function (o) { return r.charCodeAt(o) - 32 }) }, compressToUint8Array: function (r) { for (var o = i.compress(r), n = new Uint8Array(2 * o.length), e = 0, t = o.length; e < t; e++) { var s = o.charCodeAt(e); n[2 * e] = s >>> 8, n[2 * e + 1] = s % 256 } return n }, decompressFromUint8Array: function (o) { if (null == o) return i.decompress(o); for (var n = new Array(o.length / 2), e = 0, t = n.length; e < t; e++)n[e] = 256 * o[2 * e] + o[2 * e + 1]; var s = []; return n.forEach(function (o) { s.push(r(o)) }), i.decompress(s.join("")) }, compressToEncodedURIComponent: function (r) { return null == r ? "" : i._compress(r, 6, function (r) { return n.charAt(r) }) }, decompressFromEncodedURIComponent: function (r) { return null == r ? "" : "" == r ? null : (r = r.replace(/ /g, "+"), i._decompress(r.length, 32, function (o) { return t(n, r.charAt(o)) })) }, compress: function (o) { return i._compress(o, 16, function (o) { return r(o) }) }, _compress: function (r, o, n) { if (null == r) return ""; var e, t, i, s = {}, u = {}, a = "", p = "", c = "", l = 2, f = 3, h = 2, d = [], m = 0, v = 0; for (i = 0; i < r.length; i += 1)if (a = r.charAt(i), Object.prototype.hasOwnProperty.call(s, a) || (s[a] = f++, u[a] = !0), p = c + a, Object.prototype.hasOwnProperty.call(s, p)) c = p; else { if (Object.prototype.hasOwnProperty.call(u, c)) { if (c.charCodeAt(0) < 256) { for (e = 0; e < h; e++)m <<= 1, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++; for (t = c.charCodeAt(0), e = 0; e < 8; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } else { for (t = 1, e = 0; e < h; e++)m = m << 1 | t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t = 0; for (t = c.charCodeAt(0), e = 0; e < 16; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } 0 == --l && (l = Math.pow(2, h), h++), delete u[c] } else for (t = s[c], e = 0; e < h; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1; 0 == --l && (l = Math.pow(2, h), h++), s[p] = f++, c = String(a) } if ("" !== c) { if (Object.prototype.hasOwnProperty.call(u, c)) { if (c.charCodeAt(0) < 256) { for (e = 0; e < h; e++)m <<= 1, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++; for (t = c.charCodeAt(0), e = 0; e < 8; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } else { for (t = 1, e = 0; e < h; e++)m = m << 1 | t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t = 0; for (t = c.charCodeAt(0), e = 0; e < 16; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1 } 0 == --l && (l = Math.pow(2, h), h++), delete u[c] } else for (t = s[c], e = 0; e < h; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1; 0 == --l && (l = Math.pow(2, h), h++) } for (t = 2, e = 0; e < h; e++)m = m << 1 | 1 & t, v == o - 1 ? (v = 0, d.push(n(m)), m = 0) : v++, t >>= 1; for (; ;) { if (m <<= 1, v == o - 1) { d.push(n(m)); break } v++ } return d.join("") }, decompress: function (r) { return null == r ? "" : "" == r ? null : i._decompress(r.length, 32768, function (o) { return r.charCodeAt(o) }) }, _decompress: function (o, n, e) { var t, i, s, u, a, p, c, l = [], f = 4, h = 4, d = 3, m = "", v = [], g = { val: e(0), position: n, index: 1 }; for (t = 0; t < 3; t += 1)l[t] = t; for (s = 0, a = Math.pow(2, 2), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; switch (s) { case 0: for (s = 0, a = Math.pow(2, 8), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; c = r(s); break; case 1: for (s = 0, a = Math.pow(2, 16), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; c = r(s); break; case 2: return "" }for (l[3] = c, i = c, v.push(c); ;) { if (g.index > o) return ""; for (s = 0, a = Math.pow(2, d), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; switch (c = s) { case 0: for (s = 0, a = Math.pow(2, 8), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; l[h++] = r(s), c = h - 1, f--; break; case 1: for (s = 0, a = Math.pow(2, 16), p = 1; p != a;)u = g.val & g.position, g.position >>= 1, 0 == g.position && (g.position = n, g.val = e(g.index++)), s |= (u > 0 ? 1 : 0) * p, p <<= 1; l[h++] = r(s), c = h - 1, f--; break; case 2: return v.join("") }if (0 == f && (f = Math.pow(2, d), d++), l[c]) m = l[c]; else { if (c !== h) return null; m = i + i.charAt(0) } v.push(m), l[h++] = i + m.charAt(0), i = m, 0 == --f && (f = Math.pow(2, d), d++) } } }; return i }(); "function" == typeof define && define.amd ? define(function () { return LZString }) : "undefined" != typeof module && null != module ? module.exports = LZString : "undefined" != typeof angular && null != angular && angular.module("LZString", []).factory("LZString", function () { return LZString });
   </script>
-
-  <style>
-    :root {
-      --color-one-base: orange;
-      /* --color-one-dark-text: darkblue; */
-      --color-one-dark-text: rgb(11, 11, 107);
-      --color-one-light: rgb(255, 231, 183);
-      --color-one-dark: rgb(137, 89, 0);
-      --font-sans: Tahoma, Verdana, sans-serif;
-      --font-serif: Courier New, serif;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    #dynamic-input {
-      display: block;
-    }
-
-    .query-title {
-      padding: 2px;
-      margin-bottom: 5px;
-      border-radius: 3px;
-      border-color: whitesmoke;
-      font: message-box;
-      /* font-family: var(--font-sans); */
-      background-color: whitesmoke;
-    }
-
-    .medsyntax-target div.hover,
-    .medsyntax-target .hover div,
-    .medsyntax-target div.quote-term.hover,
-    .medsyntax-target .hover div.quote-term,
-    .medsyntax-target div.term.hover,
-    .medsyntax-target .hover div.term {
-      background: var(--color-one-base);
-      background-clip: padding-box;
-      /* border-color: var(--color-one-base); */
-      /* border-bottom-style: solid; */
-    }
-
-    body {
-      background-color: lightgrey;
-      /* font: message-box; */
-      font-family: var(--font-sans);
-    }
-
-    #demo2 {
-      padding: 5px;
-      background-color: lightslategray;
-      /* font: message-box; */
-      font-family: var(--font-sans);
-    }
-
-    #demo-button {
-      display: inline-block;
-      margin-bottom: 5px;
-    }
-
-    .query-input {
-      padding: 5px;
-      font: message-box;
-      /* font-family: var(--font-sans); */
-      background-color: whitesmoke;
-      border-color: gray;
-      border-radius: 3px;
-    }
-
-    .dynamic-input {
-      font: message-box;
-      /* font-family: var(--font-sans); */
-      background: var(--color-one-light);
-      border-width: 3px;
-    }
-
-    /* .medsyntax-target div {
-      border-color: white;
-      border-bottom-style: solid;
-    } */
-
-    .medsyntax div {
-      color: black;
-      display: inline-block;
-      /* margin-bottom: 2px; */
-      /* padding-bottom: 2px; */
-      /* padding-top: 2px; */
-    }
-
-    .medsyntax div.search-string div.boolean-error {
-      color: white;
-      /* background-color: whitesmoke; */
-      background: black;
-    }
-
-    .medsyntax div.search-string.hover div.boolean-error,
-    .medsyntax div.search-string div.boolean-error.hover,
-    .medsyntax div.search-string .hover div.boolean-error {
-      color: black;
-      background: var(--color-one-light);
-      /* background: orange; */
-    }
-
-    .medsyntax .term {
-      /* color: red; */
-      /* border-bottom-style: dashed; */
-      /* border-bottom-color: lightgray; */
-      padding-left: 5px;
-    }
-
-    .medsyntax div.search-string {
-      /* background-color: white; */
-      background-color: whitesmoke;
-      padding: 15px;
-      padding-top: 20px;
-      border-radius: 5px;
-      display: inline-block;
-    }
-
-    .medsyntax-target div.quote-term {
-      /* margin-bottom: 3px; */
-      background: lightgray;
-    }
-
-    .medsyntax-target .quote-term div.bracket-open,
-    .medsyntax-target .quote-term div.bracket-close {
-      border-color: lightgray;
-    }
-
-    .medsyntax-target .hover div.bracket-open,
-    .medsyntax-target .hover div.bracket-close,
-    .medsyntax-target .quote-term div.bracket-open.hover,
-    .medsyntax-target .quote-term div.bracket-close.hover {
-      border-color: var(--color-one-base);
-    }
-
-    .medsyntax-target div.boolean {
-      color: var(--color-one-dark-text);
-      /* color: black; */
-      padding-left: 5px;
-      padding-right: 5px;
-      font-weight: bold;
-      font-family: var(--font-serif);
-    }
-
-    .medsyntax-target div.brackets {
-      padding: 3px;
-      border-radius: 5px;
-      border: var(--color-one-dark);
-      /* background: var(--color-one-lightest); */
-      /* border: black; */
-      border-style: solid;
-      margin-left: 3px;
-      margin-right: 3px;
-      margin-bottom: 3px;
-      filter: hue-rotate(110deg);
-    }
-
-    .medsyntax-target div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets {
-      border-style: solid;
-      border-width: 2px;
-      margin-top: 3px;
-    }
-
-    .medsyntax-target div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
-    .medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets {
-      /* border-style: dashed; */
-      border-style: solid;
-      border-width: 2px;
-      margin-top: 3px;
-    }
-
-    .medsyntax-target div.square-brackets {
-      /* color: rgb(111, 111, 111); */
-      padding-right: 2px;
-      font-family: var(--font-serif);
-    }
-
-    .medsyntax .medsyntax-target .search-string .square-brackets div {
-      border-bottom-style: none;
-      padding: 0px;
-    }
-
-    .medsyntax-target div.near {
-      padding-left: 5px;
-      /* color: rgb(111, 111, 111); */
-      color: grey;
-      font-weight: bold;
-      font-family: var(--font-serif);
-    }
-
-    .medsyntax-target div.embase {
-      /* color: rgb(111, 111, 111); */
-      font-family: var(--font-serif);
-    }
-
-    .medsyntax-target div.pubmed {
-      /* color: rgb(111, 111, 111); */
-      padding-right: 3px;
-      padding-left: 3px;
-      font-family: var(--font-serif);
-    }
-
-    p.warning-medsyntax {
-      background-color: lightcoral;
-    }
-
-    h3 {
-      color: black;
-      background-color: lightgrey;
-      padding: 5px;
-      border-width: 5px;
-      border-radius: 5px;
-      border-color: darkgray;
-    }
-
-    p {
-      padding: 5px;
-    }
-  </style>
-
-  <!-- source: w3schools -->
-  <style>
-    .tooltip {
-      position: relative;
-      display: inline-block;
-    }
-
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 400px;
-      background-color: #555;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 5px;
-      position: absolute;
-      z-index: 1;
-      bottom: 150%;
-      left: 50%;
-      /* margin-left: -75px; */
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .tooltip .tooltiptext::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 15px;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: #555 transparent transparent transparent;
-    }
-
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
-    }
-  </style>
-
 
 </body>
 

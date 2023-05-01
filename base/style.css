@@ -1,0 +1,265 @@
+:root {
+  --color-one-base: orange;
+  /* --color-one-dark-text: darkblue; */
+  --color-one-dark-text: rgb(11, 11, 107);
+  --color-one-light: rgb(255, 231, 183);
+  --color-one-dark: rgb(137, 89, 0);
+  --font-sans: Tahoma, Verdana, sans-serif;
+  --font-serif: Courier New, serif;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#dynamic-input {
+  display: block;
+}
+
+.query-title {
+  padding: 2px;
+  margin-bottom: 5px;
+  border-radius: 3px;
+  border-color: whitesmoke;
+  font: message-box;
+  /* font-family: var(--font-sans); */
+  background-color: whitesmoke;
+}
+
+.medsyntax-target div.hover,
+.medsyntax-target .hover div,
+.medsyntax-target div.quote-term.hover,
+.medsyntax-target .hover div.quote-term,
+.medsyntax-target div.term.hover,
+.medsyntax-target .hover div.term {
+  background: var(--color-one-base);
+  background-clip: padding-box;
+  /* border-color: var(--color-one-base); */
+  /* border-bottom-style: solid; */
+}
+
+body {
+  background-color: lightgrey;
+  /* font: message-box; */
+  font-family: var(--font-sans);
+}
+
+#demo2 {
+  padding: 5px;
+  background-color: lightslategray;
+  /* font: message-box; */
+  font-family: var(--font-sans);
+}
+
+#demo-button {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.query-input {
+  padding: 5px;
+  font: message-box;
+  /* font-family: var(--font-sans); */
+  background-color: whitesmoke;
+  border-color: gray;
+  border-radius: 3px;
+}
+
+.dynamic-input {
+  font: message-box;
+  /* font-family: var(--font-sans); */
+  background: var(--color-one-light);
+  border-width: 3px;
+}
+
+/* .medsyntax-target div {
+  border-color: white;
+  border-bottom-style: solid;
+} */
+
+.medsyntax div {
+  color: black;
+  display: inline-block;
+  /* margin-bottom: 2px; */
+  /* padding-bottom: 2px; */
+  /* padding-top: 2px; */
+}
+
+.medsyntax div.search-string div.boolean-error {
+  color: white;
+  /* background-color: whitesmoke; */
+  background: black;
+}
+
+.medsyntax div.search-string.hover div.boolean-error,
+.medsyntax div.search-string div.boolean-error.hover,
+.medsyntax div.search-string .hover div.boolean-error {
+  color: black;
+  background: var(--color-one-light);
+  /* background: orange; */
+}
+
+.medsyntax .term {
+  /* color: red; */
+  /* border-bottom-style: dashed; */
+  /* border-bottom-color: lightgray; */
+  padding-left: 5px;
+}
+
+.medsyntax div.search-string {
+  /* background-color: white; */
+  background-color: whitesmoke;
+  padding: 15px;
+  padding-top: 20px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.medsyntax-target div.quote-term {
+  /* margin-bottom: 3px; */
+  background: lightgray;
+}
+
+.medsyntax-target .quote-term div.bracket-open,
+.medsyntax-target .quote-term div.bracket-close {
+  border-color: lightgray;
+}
+
+.medsyntax-target .hover div.bracket-open,
+.medsyntax-target .hover div.bracket-close,
+.medsyntax-target .quote-term div.bracket-open.hover,
+.medsyntax-target .quote-term div.bracket-close.hover {
+  border-color: var(--color-one-base);
+}
+
+.medsyntax-target div.boolean {
+  color: var(--color-one-dark-text);
+  /* color: black; */
+  padding-left: 5px;
+  padding-right: 5px;
+  font-weight: bold;
+  font-family: var(--font-serif);
+}
+
+.medsyntax-target div.brackets {
+  padding: 3px;
+  border-radius: 5px;
+  border: var(--color-one-dark);
+  /* background: var(--color-one-lightest); */
+  /* border: black; */
+  border-style: solid;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  filter: hue-rotate(110deg);
+}
+
+.medsyntax-target div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets {
+  border-style: solid;
+  border-width: 2px;
+  margin-top: 3px;
+}
+
+.medsyntax-target div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets,
+.medsyntax-target div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets div.brackets {
+  /* border-style: dashed; */
+  border-style: solid;
+  border-width: 2px;
+  margin-top: 3px;
+}
+
+.medsyntax-target div.square-brackets {
+  /* color: rgb(111, 111, 111); */
+  padding-right: 2px;
+  font-family: var(--font-serif);
+}
+
+.medsyntax .medsyntax-target .search-string .square-brackets div {
+  border-bottom-style: none;
+  padding: 0px;
+}
+
+.medsyntax-target div.near {
+  padding-left: 5px;
+  /* color: rgb(111, 111, 111); */
+  color: grey;
+  font-weight: bold;
+  font-family: var(--font-serif);
+}
+
+.medsyntax-target div.embase {
+  /* color: rgb(111, 111, 111); */
+  font-family: var(--font-serif);
+}
+
+.medsyntax-target div.pubmed {
+  /* color: rgb(111, 111, 111); */
+  padding-right: 3px;
+  padding-left: 3px;
+  font-family: var(--font-serif);
+}
+
+p.warning-medsyntax {
+  background-color: lightcoral;
+}
+
+h3 {
+  color: black;
+  background-color: lightgrey;
+  padding: 5px;
+  border-width: 5px;
+  border-radius: 5px;
+  border-color: darkgray;
+}
+
+p {
+  padding: 5px;
+}
+
+/* <!-- source: w3schools --> */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 400px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  /* margin-left: -75px; */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 15px;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+
