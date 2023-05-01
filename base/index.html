@@ -294,6 +294,8 @@
       str = str.replaceAll(')AND', ') AND');
       str = str.replaceAll(')OR', ') OR');
       str = str.replaceAll('OR(', 'OR (');
+      str = str.replaceAll(')NOT', ') NOT');
+      str = str.replaceAll('NOT(', 'NOT (');
       updateUrl('query', LZString.compressToEncodedURIComponent(str));
 
       document.getElementById("demo-button").hidden = true; // move somewhere else
