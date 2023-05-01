@@ -38,7 +38,8 @@
   <p id="warning-square-bracket-open" class="warning-medsyntax">Too many [ in query. Or not enough ] in query.</p>
   <p id="warning-square-bracket-close" class="warning-medsyntax">Too many ] in query. Or not enough [] in query.</p>
   <p id="warning-quotes" class="warning-medsyntax">Incorrect number of quote signs.</p>
-  <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically potentially unclear boolean operator(s).</p>
+  <p id="warning-ambiguous-and" class="warning-medsyntax">Semantically potentially unclear boolean operator(s). Not
+    fixing these in very long strings may impact performance.</p>
 
   <div id="medsyntax" class="medsyntax">
     <h3 id="medsyntax-title">medsyntax:</h3>
@@ -87,13 +88,15 @@
     var medsyntaxTargetWidth;
     var stringLatestString = "";
     var time = Date.now();
+    var latestInputTime = Date.now();
 
     $(document).ready(function () {
       $(document).click(function (event) {
         var $target = $(event.target);
         if (!$target.closest('#dynamic-input').length &&
           $('#dynamic-input').is(":visible")) {
-          syntaxCheck("query-input1", "medsyntax-target1");
+          syntaxCheck("query-input1", "medsyntax-target1", true);
+          console.log("click");
         }
       });
 
@@ -271,15 +274,26 @@
 
     //*** Syntax highlighter code ***//
 
-    const myWorker = new Worker("worker.js");
+    let myWorker = new Worker("workerSyntaxParser.js");
 
-    function syntaxCheck(sourceElementId, targetElementId) {
+    function syntaxCheck(sourceElementId, targetElementId, force) {
+      if ($('#dynamic-input').is(":visible") && !force) {
+        return false;
+      }
+
+      latestInputTime = Date.now();
+      var savedLatestInputTime = latestInputTime;
       var str = document.getElementById(sourceElementId).value;
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
       str = str.replace(/  +/g, ' ');
       str = str.replace(/[“]|[”]|[″]|[‶]/g, '"');
       str = str.replace(/[‘]|[’]|[′]|[‵]/g, '\'');
+
+      str = str.replaceAll('AND(', 'AND (');
+      str = str.replaceAll(')AND', ') AND');
+      str = str.replaceAll(')OR', ') OR');
+      str = str.replaceAll('OR(', 'OR (');
       updateUrl('query', LZString.compressToEncodedURIComponent(str));
 
       document.getElementById("demo-button").hidden = true; // move somewhere else
@@ -300,18 +314,21 @@
         hasError = true;
       }
 
+      myWorker.terminate();
+      myWorker = new Worker("workerSyntaxParser.js");
       myWorker.postMessage(str);
       myWorker.onmessage = (e) => {
         console.log("Message received from worker");
-        afterParseFuntion(e.data, targetElementId, hasError);
+        afterParseFuntion(e.data, targetElementId, hasError, savedLatestInputTime);
       };
     }
 
-    function afterParseFuntion(str, targetElementId, hasError) {    
+    function afterParseFuntion(str, targetElementId, hasError, savedLatestInputTime) {
       res = str;
       document.getElementById(targetElementId).innerHTML = res;
 
       // WARNINGS
+      time = Date.now();
 
       // bracket warnings ( and )
       bracketOpenCount = (str.match(new RegExp('(\\()', 'gi')) || []).length;
@@ -345,24 +362,84 @@
         document.getElementById(warningSquareBracketOpenElementId).hidden = false;
       }
 
-      time = Date.now();
+      var hasAmbiguousAndError = false;
       if (hasError == false) {
         // ambiguous ANDs and ORs
-        var ambiguousAndLen = $(".brackets .boolean.or").siblings(".and").length + $(".search-string .boolean.or").siblings(".and").length;
-        if (ambiguousAndLen > 0) {
-          $(".brackets .boolean.or").siblings(".and").addClass("boolean-error");
-          $(".brackets .boolean.or").siblings(".and").addClass("boolean-error");
-          $(".search-string .boolean.or").siblings(".and").addClass("boolean-error");
-          $(".search-string .boolean.or").siblings(".and").addClass("boolean-error");
-          $(".brackets .boolean.and").siblings(".or").addClass("boolean-error");
-          $(".brackets .boolean.and").siblings(".or").addClass("boolean-error");
-          $(".search-string .boolean.and").siblings(".or").addClass("boolean-error");
-          $(".search-string .boolean.and").siblings(".or").addClass("boolean-error");
+        var ambiguousAndLen = $(".brackets .boolean.and").each(function () {
+          if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
+            return false; // breaks
+          }
+          $(this).siblings(".or").each(function () {
+            hasAmbiguousAndError = true;
+            return false; // breaks
+          }
+          )
+        });
+
+        var ambiguousAndLen = $(".search-string .boolean.and").each(function () {
+          if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
+            return false; // breaks
+          }
+          $(this).siblings(".or").each(function () {
+            hasAmbiguousAndError = true;
+            return false; // breaks
+          }
+          )
+        });
+
+        if (hasAmbiguousAndError) {
+          $(".brackets .boolean.or").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".and").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error");
+            });
+          });
+
+          $(".brackets .boolean.and").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".or").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error");
+            });
+          });
+
+          $(".search-string .boolean.or").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".and").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error");
+            });
+          });
+
+          $(".search-string .boolean.and").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".or").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error");
+            });
+          });
+
           document.getElementById(warningAmbiguousAndElementId).hidden = false;
           hasError = true;
         }
       }
-      console.log('duration: ' + (Date.now() - time) + 'ms');
 
       if (squareBracketOpenCount == squareBracketCloseCount
         && bracketOpenCount == bracketCloseCount
@@ -378,12 +455,12 @@
             elementForHover = this;
           }
 
-          // event.stopPropagation();
           return false;
         });
       }
 
       makeResizableTarget(targetElementId);
+      console.log('duration: ' + (Date.now() - time) + 'ms');
     }
 
     function makeEditScope(targetElementId, element) {
@@ -534,11 +611,7 @@
 
       str = str.replace(/  +/g, ' ');
       $("#query-input1").val(str);
-      syntaxCheck("query-input1", "medsyntax-target1");
-    }
-
-    function onFocusoutDynamicInput() {
-      syntaxCheck("query-input1", "medsyntax-target1");
+      syntaxCheck("query-input1", "medsyntax-target1", true);
     }
   </script>
 
