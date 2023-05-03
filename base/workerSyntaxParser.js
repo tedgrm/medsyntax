@@ -110,6 +110,7 @@ function syntaxParser(str) {
 }
 
 onmessage = (e) => {
+    //TODO timeout van 20ms? Voor betere invoer experience
     console.log("Message received from main script");
     const workerResult = syntaxParser(e.data);
     console.log("Posting message back to main script");
