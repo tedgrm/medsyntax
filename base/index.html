@@ -109,7 +109,7 @@
         $("#query-input1").val(LZString.decompressFromEncodedURIComponent(param1));
         syntaxCheck("query-input1", "medsyntax-target1");
       }
- 
+
       document.getElementById("demo2").innerText = '(COVID-19 [mh] OR COVID-19 Testing[mh] OR COVID-19 Vaccines[mh] OR SARS-CoV-2[mh] OR spike glycoprotein, COVID-19 virus [Supplementary Concept] OR ((Coronavirus[mh:noexp] OR Betacoronavirus[mh:noexp] OR Coronavirus Infections[mh:noexp]) AND (Disease Outbreaks[mh:noexp] OR Epidemics[mh:noexp] OR Pandemics[mh])) OR nCoV[tiab] OR nCoV[tt] OR 2019nCoV[tiab] OR 2019nCoV[tt] OR 19nCoV[tiab] OR 19nCoV[tt] OR COVID19*[tiab] OR COVID19*[tt] OR COVID[tiab] OR COVID[tt] OR SARS-CoV-2[tiab] OR SARS-CoV-2[tt] OR SARSCOV-2[tiab] OR SARSCOV-2[tt] OR SARS-COV2[tiab] OR SARS-COV2[tt] OR SARSCOV2[tiab] OR SARSCOV2[tt] OR SARS coronavirus 2[tiab] OR SARS coronavirus 2[tt] OR Severe Acute Respiratory Syndrome Coronavirus 2[tiab] OR Severe Acute Respiratory Syndrome Coronavirus 2[tt] OR ((severe acute respiratory syndrome[tiab] OR severe acute respiratory syndrome[tt]) AND (corona virus 2[tiab] OR corona virus 2[tt])) OR new coronavirus[tiab] OR (new[tt] AND coronavirus[tt]) OR novel coronavirus[tiab] OR novel coronavirus[tt] OR novel corona virus[tiab] OR (novel[tt] AND corona virus[tt]) OR novel CoV[tiab] OR (novel[tt] AND CoV[tt]) OR novel HCoV[tiab] OR (novel[tt] AND HCoV[tt]) OR ((“19″[tiab] OR “19”[tt] OR “2019”[tiab] OR “2019”[tt] OR Wuhan[tiab] OR Wuhan[tt] OR Hubei[tiab] OR Hubei[tt]) AND (coronavirus*[tiab] OR coronavirus*[tt] OR corona virus*[tiab] OR corona virus*[tt] OR CoV[tiab] OR CoV[tt] OR HCoV[tiab] OR HCoV[tt])) OR longCOVID*[tiab] OR longCOVID*[tt] OR postCOVID*[tiab] OR postCOVID*[tt] OR postcoronavirus*[tiab] OR postcoronavirus*[tt] OR postSARS*[tiab] OR postSARS*[tt] OR ((coronavirus*[tiab] OR coronavirus*[tt] OR corona virus*[tiab] OR corona virus*[tt] OR betacoronavirus*[tiab] OR betacoronavirus*[tt]) AND (outbreak*[tiab] OR outbreak*[tt] OR epidemic*[tiab] OR epidemic*[tt] OR pandemic*[tiab] OR pandemic*[tt] OR crisis[tiab] OR crisis[tt])) OR ((Wuhan[tiab] OR Wuhan[tt] OR Hubei[tiab] OR Hubei[tt]) AND (pneumonia[tiab] OR pneumonia[tt]))) AND 2019/10/31:3000/12/31[Date – Publication]';
 
       let param2 = getParameterByName('querytitle');
@@ -285,6 +285,12 @@
       latestInputTime = Date.now();
       var savedLatestInputTime = latestInputTime;
       var str = document.getElementById(sourceElementId).value;
+      if (stringLatestString == str) {
+        return false;
+      } else {
+        stringLatestString = str;
+      }
+
       str = str.replace(/[\u000A\u000D\u2028\u2029]/g, ' ')
       str = str.replace(/\r?\n|\r/g, ' ');
       str = str.replace(/  +/g, ' ');
@@ -365,105 +371,111 @@
         document.getElementById(warningSquareBracketOpenElementId).hidden = false;
       }
 
-      var hasAmbiguousAndError = false;
-      if (hasError == false) {
-        // ambiguous ANDs and ORs
-        var ambiguousAndLen = $(".brackets .boolean.and").each(function () {
-          if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
-            return false; // breaks
-          }
-          $(this).siblings(".or").each(function () {
-            hasAmbiguousAndError = true;
-            return false; // breaks
-          }
-          )
-        });
-
-        var ambiguousAndLen = $(".search-string .boolean.and").each(function () {
-          if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
-            return false; // breaks
-          }
-          $(this).siblings(".or").each(function () {
-            hasAmbiguousAndError = true;
-            return false; // breaks
-          }
-          )
-        });
-
-        if (hasAmbiguousAndError) {
-          $(".brackets .boolean.or").each(function () {
-            if (savedLatestInputTime != latestInputTime) {
-              return false; // breaks
-            }
-            $(this).siblings(".and").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).addClass("boolean-error-and");
-            });
-          });
-
-          $(".brackets .boolean.and").each(function () {
-            if (savedLatestInputTime != latestInputTime) {
+        var hasAmbiguousAndError = false;
+        if (hasError == false) {
+          // ambiguous ANDs and ORs
+          var ambiguousAndLen = $(".brackets .boolean.and").each(function () {
+            if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
               return false; // breaks
             }
             $(this).siblings(".or").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).addClass("boolean-error-or");
-            });
-          });
-
-          $(".search-string .boolean.or").each(function () {
-            if (savedLatestInputTime != latestInputTime) {
+              hasAmbiguousAndError = true;
               return false; // breaks
             }
-            $(this).siblings(".and").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).addClass("boolean-error-and");
-            });
+            )
           });
 
-          $(".search-string .boolean.and").each(function () {
-            if (savedLatestInputTime != latestInputTime) {
+          var ambiguousAndLen = $(".search-string .boolean.and").each(function () {
+            if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
               return false; // breaks
             }
             $(this).siblings(".or").each(function () {
+              hasAmbiguousAndError = true;
+              return false; // breaks
+            }
+            )
+          });
+
+          if (hasAmbiguousAndError) {
+            // add boolean error classes
+
+            $(".brackets .boolean.or").each(function () {
               if (savedLatestInputTime != latestInputTime) {
                 return false; // breaks
               }
-              $(this).addClass("boolean-error-or");
+              $(this).siblings(".and").each(function () {
+                if (savedLatestInputTime != latestInputTime) {
+                  return false; // breaks
+                }
+                $(this).addClass("boolean-error-and");
+              });
             });
-          });
 
-          document.getElementById(warningAmbiguousAndElementId).hidden = false;
-          hasError = true;
+            $(".brackets .boolean.and").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).siblings(".or").each(function () {
+                if (savedLatestInputTime != latestInputTime) {
+                  return false; // breaks
+                }
+                $(this).addClass("boolean-error-or");
+              });
+            });
+
+            $(".search-string .boolean.or").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).siblings(".and").each(function () {
+                if (savedLatestInputTime != latestInputTime) {
+                  return false; // breaks
+                }
+                $(this).addClass("boolean-error-and");
+              });
+            });
+
+            $(".search-string .boolean.and").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).siblings(".or").each(function () {
+                if (savedLatestInputTime != latestInputTime) {
+                  return false; // breaks
+                }
+                $(this).addClass("boolean-error-or");
+              });
+            });
+
+            document.getElementById(warningAmbiguousAndElementId).hidden = false;
+            hasError = true;
+
+
+          }
         }
-      }
 
-      if (squareBracketOpenCount == squareBracketCloseCount
-        && bracketOpenCount == bracketCloseCount
-        && document.getElementById(warningQuotesElementId).hidden) {
-        var elementForHover;
-        $('#' + targetElementId + ' .search-string div').mousemove(function (event) {
+        if (squareBracketOpenCount == squareBracketCloseCount
+          && bracketOpenCount == bracketCloseCount
+          && document.getElementById(warningQuotesElementId).hidden) {
+          var elementForHover;
+          $('#' + targetElementId + ' .search-string div').mousemove(function (event) {
 
-          if (elementForHover != this) {
-            if ($(this).hasClass('hover')) {
-              return false;
+            if (elementForHover != this) {
+              if ($(this).hasClass('hover')) {
+                return false;
+              }
+              makeEditScope(targetElementId, this)
+              elementForHover = this;
             }
-            makeEditScope(targetElementId, this)
-            elementForHover = this;
-          }
 
-          return false;
-        });
-      }
+            return false;
+          });
 
-      makeResizableTarget(targetElementId);
-      console.log('duration: ' + (Date.now() - time) + 'ms');
+        }
+
+        makeResizableTarget(targetElementId);
+        console.log('duration: ' + (Date.now() - time) + 'ms');
+
     }
 
     // Determine edit scope
