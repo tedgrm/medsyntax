@@ -116,7 +116,7 @@ body {
 }
 
 .medsyntax-target div.quote-term {
-  /* margin-bottom: 3px; */
+  margin-bottom: 1px;
   background: lightgray;
 }
 
@@ -142,7 +142,7 @@ body {
 }
 
 .medsyntax-target div.brackets {
-  padding: 3px;
+  /* padding: 3px; */
   border-radius: 5px;
   border: var(--color-one-dark);
   /* background: var(--color-one-lightest); */
