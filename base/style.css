@@ -85,19 +85,33 @@ body {
   /* padding-top: 2px; */
 }
 
-.medsyntax div.search-string div.boolean-error {
+.medsyntax div.search-string div.boolean-error-or {
   color: white;
   /* background-color: whitesmoke; */
-  background: black;
+  background: darkred;
 }
 
-.medsyntax div.search-string.hover div.boolean-error,
-.medsyntax div.search-string div.boolean-error.hover,
-.medsyntax div.search-string .hover div.boolean-error {
+.medsyntax div.search-string.hover div.boolean-error-or,
+.medsyntax div.search-string div.boolean-error-or.hover,
+.medsyntax div.search-string .hover div.boolean-error-or {
   color: black;
   background: var(--color-one-light);
   /* background: orange; */
 }
+
+.medsyntax div.search-string div.boolean-error-and {
+    color: white;
+    /* background-color: whitesmoke; */
+    background: darkblue;
+  }
+  
+  .medsyntax div.search-string.hover div.boolean-error-and,
+  .medsyntax div.search-string div.boolean-error-and.hover,
+  .medsyntax div.search-string .hover div.boolean-error-and {
+    color: black;
+    background: var(--color-one-light);
+    /* background: orange; */
+  }
 
 .medsyntax .term {
   /* color: red; */
@@ -142,7 +156,7 @@ body {
 }
 
 .medsyntax-target div.brackets {
-  /* padding: 3px; */
+  padding: 1px;
   border-radius: 5px;
   border: var(--color-one-dark);
   /* background: var(--color-one-lightest); */
