@@ -285,7 +285,7 @@
       latestInputTime = Date.now();
       var savedLatestInputTime = latestInputTime;
       var str = document.getElementById(sourceElementId).value;
-      if (stringLatestString == str) {
+      if (stringLatestString == str && !force) {
         return false;
       } else {
         stringLatestString = str;
