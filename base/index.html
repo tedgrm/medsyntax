@@ -371,110 +371,111 @@
         document.getElementById(warningSquareBracketOpenElementId).hidden = false;
       }
 
-        var hasAmbiguousAndError = false;
-        if (hasError == false) {
-          // ambiguous ANDs and ORs
-          var ambiguousAndLen = $(".brackets .boolean.and").each(function () {
-            if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
-              return false; // breaks
-            }
-            $(this).siblings(".or").each(function () {
-              hasAmbiguousAndError = true;
-              return false; // breaks
-            }
-            )
-          });
-
-          var ambiguousAndLen = $(".search-string .boolean.and").each(function () {
-            if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
-              return false; // breaks
-            }
-            $(this).siblings(".or").each(function () {
-              hasAmbiguousAndError = true;
-              return false; // breaks
-            }
-            )
-          });
-
-          if (hasAmbiguousAndError) {
-            // add boolean error classes
-
-            $(".brackets .boolean.or").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).siblings(".and").each(function () {
-                if (savedLatestInputTime != latestInputTime) {
-                  return false; // breaks
-                }
-                $(this).addClass("boolean-error-and");
-              });
-            });
-
-            $(".brackets .boolean.and").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).siblings(".or").each(function () {
-                if (savedLatestInputTime != latestInputTime) {
-                  return false; // breaks
-                }
-                $(this).addClass("boolean-error-or");
-              });
-            });
-
-            $(".search-string .boolean.or").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).siblings(".and").each(function () {
-                if (savedLatestInputTime != latestInputTime) {
-                  return false; // breaks
-                }
-                $(this).addClass("boolean-error-and");
-              });
-            });
-
-            $(".search-string .boolean.and").each(function () {
-              if (savedLatestInputTime != latestInputTime) {
-                return false; // breaks
-              }
-              $(this).siblings(".or").each(function () {
-                if (savedLatestInputTime != latestInputTime) {
-                  return false; // breaks
-                }
-                $(this).addClass("boolean-error-or");
-              });
-            });
-
-            document.getElementById(warningAmbiguousAndElementId).hidden = false;
-            hasError = true;
-
-
+      //TODO does this "savedLatestInputTime != latestInputTime" thing even work?
+      var hasAmbiguousAndError = false;
+      if (hasError == false) {
+        // ambiguous ANDs and ORs
+        var ambiguousAndLen = $(".brackets .boolean.and").each(function () {
+          if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
+            return false; // breaks
           }
-        }
+          $(this).siblings(".or").each(function () {
+            hasAmbiguousAndError = true;
+            return false; // breaks
+          }
+          )
+        });
 
-        if (squareBracketOpenCount == squareBracketCloseCount
-          && bracketOpenCount == bracketCloseCount
-          && document.getElementById(warningQuotesElementId).hidden) {
-          var elementForHover;
-          $('#' + targetElementId + ' .search-string div').mousemove(function (event) {
+        var ambiguousAndLen = $(".search-string .boolean.and").each(function () {
+          if (hasAmbiguousAndError == true | savedLatestInputTime != latestInputTime) {
+            return false; // breaks
+          }
+          $(this).siblings(".or").each(function () {
+            hasAmbiguousAndError = true;
+            return false; // breaks
+          }
+          )
+        });
 
-            if (elementForHover != this) {
-              if ($(this).hasClass('hover')) {
-                return false;
-              }
-              makeEditScope(targetElementId, this)
-              elementForHover = this;
+        if (hasAmbiguousAndError) {
+          // add boolean error classes
+
+          $(".brackets .boolean.or").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
             }
-
-            return false;
+            $(this).siblings(".and").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error-and");
+            });
           });
 
-        }
+          $(".brackets .boolean.and").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".or").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error-or");
+            });
+          });
 
-        makeResizableTarget(targetElementId);
-        console.log('duration: ' + (Date.now() - time) + 'ms');
+          $(".search-string .boolean.or").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".and").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error-and");
+            });
+          });
+
+          $(".search-string .boolean.and").each(function () {
+            if (savedLatestInputTime != latestInputTime) {
+              return false; // breaks
+            }
+            $(this).siblings(".or").each(function () {
+              if (savedLatestInputTime != latestInputTime) {
+                return false; // breaks
+              }
+              $(this).addClass("boolean-error-or");
+            });
+          });
+
+          document.getElementById(warningAmbiguousAndElementId).hidden = false;
+          hasError = true;
+
+
+        }
+      }
+
+      if (squareBracketOpenCount == squareBracketCloseCount
+        && bracketOpenCount == bracketCloseCount
+        && document.getElementById(warningQuotesElementId).hidden) {
+        var elementForHover;
+        $('#' + targetElementId + ' .search-string div').mousemove(function (event) {
+
+          if (elementForHover != this) {
+            if ($(this).hasClass('hover')) {
+              return false;
+            }
+            makeEditScope(targetElementId, this)
+            elementForHover = this;
+          }
+
+          return false;
+        });
+
+      }
+
+      makeResizableTarget(targetElementId);
+      console.log('duration: ' + (Date.now() - time) + 'ms');
 
     }
 

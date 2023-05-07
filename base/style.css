@@ -89,6 +89,8 @@ body {
   color: white;
   /* background-color: whitesmoke; */
   background: darkred;
+  border-style: solid;
+  border-color: darkmagenta;
 }
 
 .medsyntax div.search-string.hover div.boolean-error-or,
@@ -100,18 +102,20 @@ body {
 }
 
 .medsyntax div.search-string div.boolean-error-and {
-    color: white;
-    /* background-color: whitesmoke; */
-    background: darkblue;
-  }
-  
-  .medsyntax div.search-string.hover div.boolean-error-and,
-  .medsyntax div.search-string div.boolean-error-and.hover,
-  .medsyntax div.search-string .hover div.boolean-error-and {
-    color: black;
-    background: var(--color-one-light);
-    /* background: orange; */
-  }
+  color: white;
+  /* background-color: whitesmoke; */
+  background: darkblue;
+  border-style: solid;
+  border-color: darkcyan;
+}
+
+.medsyntax div.search-string.hover div.boolean-error-and,
+.medsyntax div.search-string div.boolean-error-and.hover,
+.medsyntax div.search-string .hover div.boolean-error-and {
+  color: black;
+  background: var(--color-one-light);
+  /* background: orange; */
+}
 
 .medsyntax .term {
   /* color: red; */
@@ -275,5 +279,3 @@ p {
   visibility: visible;
   opacity: 1;
 }
-
-
