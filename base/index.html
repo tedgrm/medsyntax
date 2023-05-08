@@ -84,6 +84,51 @@
     </button>
   </div>
 
+  <div class="manual">
+
+    <h3>How to use the scope driven editor?</h3>
+    <p>Click image to enlarge: <img id="myImg" src="medsyntax_demo_1.gif" alt="Snow" style="width:100%;max-width:100px">
+    </p>
+    <p>1. Hover over the medsyntax visualisation.</p>
+    <p>2. Move the mouse to determine the scope of the edit you wish to make. The scope will be the part that is
+      highlighted.</p>
+    <p>3. Click to create the dynamic input field. Click in the dynamic input field to edit the text.</p>
+    <p class="confirm">Confirming edits: press the <b>'Enter' key</b> on your keyboard. <b>(If you do not press 'Enter',
+        your edit will be undone.)</b></p>
+    <p class="cancel">Cancelling edits: <b>click</b> anywhere outside the dynamic input field. Your edit will be undone.
+    </p>
+  </div>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="img01">
+    <div id="caption"></div>
+  </div>
+
+  <script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the image and insert it inside the modal - use its "alt" text as a caption
+    var img = document.getElementById("myImg");
+    var modalImg = document.getElementById("img01");
+    var captionText = document.getElementById("caption");
+    img.onclick = function () {
+      modal.style.display = "block";
+      modalImg.src = this.src;
+      captionText.innerHTML = this.alt;
+    }
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+      modal.style.display = "none";
+    }
+  </script>
+
   <script>
     var medsyntaxTargetWidth;
     var stringLatestString = "";
