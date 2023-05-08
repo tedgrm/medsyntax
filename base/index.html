@@ -87,8 +87,10 @@
   <div class="manual">
 
     <h3>How to use the scope driven editor?</h3>
-    <p>Click image to enlarge: <img id="myImg" src="medsyntax_demo_1.gif" alt="Snow" style="width:100%;max-width:100px">
+    <p>Example (click image to enlarge): <img id="myImg" src="medsyntax_demo_1.gif"
+        alt="Press the Enter key to confirm edits" style="width:100%;max-width:100px">
     </p>
+    <p>Quick guide:</p>
     <p>1. Hover over the medsyntax visualisation.</p>
     <p>2. Move the mouse to determine the scope of the edit you wish to make. The scope will be the part that is
       highlighted.</p>
@@ -115,6 +117,8 @@
     var modalImg = document.getElementById("img01");
     var captionText = document.getElementById("caption");
     img.onclick = function () {
+      $("#medsyntax-target1").resizable();
+      $("#medsyntax-target1").resizable("destroy");
       modal.style.display = "block";
       modalImg.src = this.src;
       captionText.innerHTML = this.alt;
@@ -125,6 +129,11 @@
 
     // When the user clicks on <span> (x), close the modal
     span.onclick = function () {
+      $("#medsyntax-target1").resizable();
+      modal.style.display = "none";
+    }
+    modal.onclick = function () {
+      $("#medsyntax-target1").resizable();
       modal.style.display = "none";
     }
   </script>
@@ -284,7 +293,7 @@
       document.getElementById("clear-button").hidden = true;
       $("body").prepend('<div id="query-title-static1">' + " " + $("#query-title1").val() + " " + '</div>');
       document.getElementById("query-title1").hidden = true;
-
+      $("#medsyntax-target1").resizable();
       $("#medsyntax-target1").resizable("destroy");
 
       document.getElementById("download-button-hidden").click();

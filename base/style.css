@@ -32,6 +32,7 @@
   border-color: whitesmoke;
   margin-right: 20px;
   margin-top: 5px;
+  margin-bottom: 20px;
   border-radius: 10px;
 }
 
@@ -47,7 +48,7 @@
   border-width: 2px;
   border-style: dashed;
   border-color: green;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   margin-right: 15px;
   margin-left: 15px;
   /* border-radius: 5px; */
@@ -57,7 +58,7 @@
   border-width: 2px;
   border-style: dashed;
   border-color: darkred;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   margin-right: 15px;
   margin-left: 15px;
   /* border-radius: 5px; */
