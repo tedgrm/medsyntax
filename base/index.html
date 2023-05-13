@@ -229,7 +229,10 @@
 
     function clearButtonFunc() {
       document.getElementById('query-input1').value = null;
-      syntaxCheck("query-input1", "medsyntax-target1");
+      // syntaxCheck("query-input1", "medsyntax-target1");
+      updateUrl('query', '');
+      document.getElementById("demo-button").hidden = false;
+      $('#medsyntax-target1').text('Please input search query in text area.');
     }
 
     function copyLinkFunction() {
