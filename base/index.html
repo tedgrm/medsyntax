@@ -72,18 +72,6 @@
     </button>
   </div>
 
-  <button type="submit" hidden="hidden">
-    <a id="download-button-hidden" style="text-decoration: none;color: inherit;"
-      onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)"
-      href="#" download="medsyntax.html">Download Hidden</a>
-  </button>
-  <div class="tooltip">
-    <button id="download-button" onclick="downloadFunction()">
-      <span class="tooltiptext" id="myDownloadTooltip">Download visualisation only</span>
-      Download
-    </button>
-  </div>
-
   <form name="myForm" class="grayscale">
     <input type="radio" name="myRadios" value="1" checked="checked" />
     <label for="html">color</label><br>
@@ -316,31 +304,6 @@
       if (!results[2]) return '';
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     };
-
-    function downloadFunction() {
-      document.getElementById("query-input1").hidden = true;
-      document.getElementById("medsyntax-title").hidden = true;
-      document.getElementById("download-button").hidden = true;
-      document.getElementById("copy-query-button").hidden = true;
-      document.getElementById("copy-link-button").hidden = true;
-      document.getElementById("clear-button").hidden = true;
-      $("body").prepend('<div id="query-title-static1">' + " " + $("#query-title1").val() + " " + '</div>');
-      document.getElementById("query-title1").hidden = true;
-      $("#medsyntax-target1").resizable();
-      $("#medsyntax-target1").resizable("destroy");
-
-      document.getElementById("download-button-hidden").click();
-
-      $("#query-title-static1").remove();
-      document.getElementById("query-title1").hidden = false;
-      $("#medsyntax-target1").resizable();
-      document.getElementById("medsyntax-title").hidden = false;
-      document.getElementById("query-input1").hidden = false;
-      document.getElementById("download-button").hidden = false;
-      document.getElementById("copy-query-button").hidden = false;
-      document.getElementById("copy-link-button").hidden = false;
-      document.getElementById("clear-button").hidden = false;
-    }
 
     var warningBracketCloseElementId = "warning-bracket-close";
     var warningBracketOpenElementId = "warning-bracket-open";
