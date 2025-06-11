@@ -2,8 +2,7 @@
 
 ## Welcome to 
 
-syntax assistant for (medical) search engines
-
-Page: https://tedgrm.github.io/medsyntax
+please use the more recent:
+https://www.medsyntax.org/
 
 ##
